@@ -29,5 +29,10 @@ public class Main {
 
         taskManager.deleteById(2);
         System.out.println(taskManager.getAllTasks());
+
+        System.out.println(taskManager.getAllSubasksOfEpicById(5));
+
+        taskManager.deleteAllTasks();
+        System.out.println(taskManager.getAllTasks());
     }
 }

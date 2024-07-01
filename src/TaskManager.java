@@ -100,12 +100,11 @@ public class TaskManager {
         for (TaskStatus status : TaskStatus.values()) {
             HashMap<Integer, Task> currentMap = tasks.get(status);
 
-            for (Task task : currentMap.values()) {
-                if (task.getId() == id) {
-                    currentMap.remove(id);
-                }
+            if (currentMap.containsKey(id)) {
+                currentMap.remove(id);
             }
         }
+
     }
 
     public ArrayList<Subtask> getAllSubasksOfEpicById(Integer id) {
