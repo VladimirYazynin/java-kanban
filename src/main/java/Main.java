@@ -4,7 +4,7 @@ import java.util.Arrays;
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager taskManager = new TaskManager();
+        TaskManager taskManager = Managers.getDefault();
         taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
         taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
         taskManager.createEpic(new Epic(0, "Закончить 4 спринт", "Выполнить все задания курса", TaskStatus.DONE, new ArrayList<>()));
@@ -48,5 +48,7 @@ public class Main {
         System.out.println(taskManager.getAllTasks());
         System.out.println(taskManager.getAllEpics());
         System.out.println(taskManager.getAllSubtasks());
+
+        System.out.println(taskManager.getHistory());
     }
 }
