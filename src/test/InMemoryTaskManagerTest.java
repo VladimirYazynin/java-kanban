@@ -12,14 +12,16 @@ class InMemoryTaskManagerTest {
         taskManager = Managers.getDefault();
     }
 
-    @Test // проверьте, что экземпляры класса Task равны друг другу, если равен их id;
+    @Test
+        // проверьте, что экземпляры класса Task равны друг другу, если равен их id;
     void shouldTaskObjectEqualsIfIdSame() {
         Task task = new Task(1, "Уборка", "Помыть посуду", TaskStatus.NEW);
         Task newTask = new Task(1, "Учёба", "Выучить стих", TaskStatus.DONE);
         Assertions.assertEquals(task, newTask);
     }
 
-    @Test // проверьте, что наследники класса Task равны друг другу, если равен их id;
+    @Test
+        // проверьте, что наследники класса Task равны друг другу, если равен их id;
     void taskHeirsShouldBeEqualsIfIdSame() {
         Epic epic = new Epic(0, "Переезд", "Выполнить много дел",
                 TaskStatus.NEW, new ArrayList<>());
@@ -33,23 +35,26 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(subtask, newSubtask);
     }
 
-    @Test // проверьте, что объект Epic нельзя добавить в самого себя в виде подзадачи;
+    @Test
+        // проверьте, что объект Epic нельзя добавить в самого себя в виде подзадачи;
     void epicCantBeAsEpicSubtask() {
         taskManager.createEpic(new Epic(0, "Переезд", "Выполнить много дел",
                 TaskStatus.NEW, new ArrayList<>() {{
-                    add(0);
+            add(0);
         }}));
         Assertions.assertEquals(0, taskManager.getAllEpics().size());
     }
 
-    @Test // проверьте, что объект Subtask нельзя сделать своим же эпиком;
+    @Test
+        // проверьте, что объект Subtask нельзя сделать своим же эпиком;
     void subtaskCantBeAsSubtaskEpic() {
         taskManager.createSubtask(new Subtask(0, "Сбор вещей",
                 "Уложить всё в коробки", TaskStatus.IN_PROGRESS, 0));
-        Assertions.assertEquals( 0, taskManager.getAllSubtasks().size());
+        Assertions.assertEquals(0, taskManager.getAllSubtasks().size());
     }
 
-    @Test // Проверка того, что InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
+    @Test
+        // Проверка того, что InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
     void shouldInMemoryTaskManagerAddTasksAndFindItById() {
         Task savedTask = new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW);
         taskManager.createTask(savedTask);
@@ -63,7 +68,8 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(savedSubtask, taskManager.getSubtaskById(savedSubtask.getId()));
     }
 
-    @Test // Проверка того, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера;
+    @Test
+        // Проверка того, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера;
     void generatedIdGoodWorksWithHandleId() {
         Task task = new Task(1000, "Уборка", "Убрать снег во дворе", TaskStatus.NEW);
         taskManager.createTask(task);
@@ -74,14 +80,16 @@ class InMemoryTaskManagerTest {
         Assertions.assertNull(taskManager.getTaskById(1000));
     }
 
-    @Test // Проверка неизменности задачи, после добавления её в менеджер;
+    @Test
+        // Проверка неизменности задачи, после добавления её в менеджер;
     void checkImmutableTaskAfterSendingInMeneger() {
         Task task = new Task(0, "Уборка", "Помыть посуду", TaskStatus.NEW);
         taskManager.createTask(task);
         Assertions.assertEquals(task, taskManager.getTaskById(0));
     }
 
-    @Test // Проверка, того, что HistoryManager сохраняет в себе актуальную версию задачи, а также добавляет её в конец списка;
+    @Test
+        // Проверка, того, что HistoryManager сохраняет в себе актуальную версию задачи, а также добавляет её в конец списка;
     void shouldSavedOldTaskVersionInHistory() {
         taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
         taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
@@ -92,7 +100,8 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(new Task(0, "Работа", "Написать тесты", TaskStatus.IN_PROGRESS), taskManager.getHistory().get(1));
     }
 
-    @Test //Проверка, того, что при удалении всех задач они также удаляются из истории
+    @Test
+        //Проверка, того, что при удалении всех задач они также удаляются из истории
     void shouldDeletedAllTasksFromHistory() {
         taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
         taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
@@ -106,7 +115,8 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(1, taskManager.getHistory().size());
     }
 
-    @Test // Проверка, того, что при удалении эпиков из истории они удаляются со своими подзадачами
+    @Test
+        // Проверка, того, что при удалении эпиков из истории они удаляются со своими подзадачами
     void shouldDeletedAllEpicsAndTheirSubtasksFromHistory() {
         taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
         taskManager.createEpic(new Epic(0,
@@ -122,7 +132,8 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(1, taskManager.getHistory().size());
     }
 
-    @Test // Проверка, того, что при очистке всех подзадач они удаляются из истории
+    @Test
+        // Проверка, того, что при очистке всех подзадач они удаляются из истории
     void shouldDeleteAllSubtasksFromHistory() {
         taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
         taskManager.createEpic(new Epic(0,
@@ -138,7 +149,8 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(2, taskManager.getHistory().size());
     }
 
-    @Test // Проверка, того что в истории хранятся только последние вызовы задач;
+    @Test
+        // Проверка, того что в истории хранятся только последние вызовы задач;
     void shouldnotRepeatInHistory() {
         taskManager.createTask(new Task(1, "Уборка", "Помыть посуду", TaskStatus.NEW));
         taskManager.createTask(new Task(1, "Учёба", "Выучить стих", TaskStatus.DONE));

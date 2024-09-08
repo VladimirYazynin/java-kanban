@@ -14,13 +14,15 @@ class InMemoryHistoryManagerTest {
     }
 
 
-    @Test // Проверка работоспособности добавления задачи в список просмотренных
+    @Test
+        // Проверка работоспособности добавления задачи в список просмотренных
     void addFirstTaskInHistory() {
         historyManager.add(new Task(10, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
-        Assertions.assertEquals( 1, historyManager.getHistory().size());
+        Assertions.assertEquals(1, historyManager.getHistory().size());
     }
 
-    @Test // Проверка того, что ограничения на уникальные задачи больше нет и при добавлении 11 задачи, она будет добавлена
+    @Test
+        // Проверка того, что ограничения на уникальные задачи больше нет и при добавлении 11 задачи, она будет добавлена
     void shouldSavedMoreThenTenTasks() {
         historyManager.add(new Task(1, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
         historyManager.add(new Task(2, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
