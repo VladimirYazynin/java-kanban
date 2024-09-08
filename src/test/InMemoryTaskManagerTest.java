@@ -41,7 +41,8 @@ class InMemoryTaskManagerTest {
         taskManager.createEpic(new Epic(0, "Переезд", "Выполнить много дел",
                 TaskStatus.NEW, new ArrayList<>() {{
             add(0);
-        }}));
+        }})
+        );
         Assertions.assertEquals(0, taskManager.getAllEpics().size());
     }
 
