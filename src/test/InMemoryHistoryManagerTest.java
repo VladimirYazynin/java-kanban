@@ -20,20 +20,20 @@ class InMemoryHistoryManagerTest {
         Assertions.assertEquals( 1, historyManager.getHistory().size());
     }
 
-    @Test // Проверка того, что при добавлении 11 задачи, самая старая задача будет удалена, а новая добавлена в конец
-    void shouldDeleteFirstTaskInHistoryAndAddNewTaskInEnd() {
-        historyManager.add(new Task(10, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
-        historyManager.add(new Task(11, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
-        historyManager.add(new Epic(12, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW, new ArrayList<Integer>()));
-        historyManager.add(new Epic(12, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW, new ArrayList<Integer>()));
-        historyManager.add(new Task(10, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
-        historyManager.add(new Task(10, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
-        historyManager.add(new Task(10, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
-        historyManager.add(new Task(10, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
-        historyManager.add(new Task(11, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
-        historyManager.add(new Task(11, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
-        historyManager.add(new Task(9, "Почитать", "Прочитать 10 страниц", TaskStatus.IN_PROGRESS));
-        Assertions.assertEquals(new Task(9, "Почитать", "Прочитать 10 страниц", TaskStatus.IN_PROGRESS), historyManager.getHistory().get(9));
+    @Test // Проверка того, что ограничения на уникальные задачи больше нет и при добавлении 11 задачи, она будет добавлена
+    void shouldSavedMoreThenTenTasks() {
+        historyManager.add(new Task(1, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
+        historyManager.add(new Task(2, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
+        historyManager.add(new Epic(3, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW, new ArrayList<Integer>()));
+        historyManager.add(new Epic(4, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW, new ArrayList<Integer>()));
+        historyManager.add(new Task(5, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
+        historyManager.add(new Task(6, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
+        historyManager.add(new Task(7, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
+        historyManager.add(new Task(8, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
+        historyManager.add(new Task(9, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
+        historyManager.add(new Task(10, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
+        historyManager.add(new Task(11, "Почитать", "Прочитать 10 страниц", TaskStatus.IN_PROGRESS));
+        Assertions.assertEquals(11, historyManager.getHistory().size());
     }
 
 }

@@ -81,7 +81,7 @@ class InMemoryTaskManagerTest {
         Assertions.assertEquals(task, taskManager.getTaskById(0));
     }
 
-    @Test // Проверка, того что задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных;
+    @Test // Проверка, того, что HistoryManager сохраняет в себе актуальную версию задачи, а также добавляет её в конец списка;
     void shouldSavedOldTaskVersionInHistory() {
         taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
         taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
@@ -89,7 +89,63 @@ class InMemoryTaskManagerTest {
         taskManager.getTaskById(1);
         taskManager.updateTask(new Task(0, "Работа", "Написать тесты", TaskStatus.IN_PROGRESS));
         taskManager.getTaskById(0);
-        Assertions.assertEquals(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW),
-                taskManager.getHistory().get(0));
+        Assertions.assertEquals(new Task(0, "Работа", "Написать тесты", TaskStatus.IN_PROGRESS), taskManager.getHistory().get(1));
+    }
+
+    @Test //Проверка, того, что при удалении всех задач они также удаляются из истории
+    void shouldDeletedAllTasksFromHistory() {
+        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
+        taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
+        taskManager.createEpic(new Epic(0,
+                "Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>()));
+        taskManager.getTaskById(0);
+        taskManager.getTaskById(1);
+        taskManager.getEpicById(2);
+        taskManager.deleteAllTasks();
+        Assertions.assertEquals(1, taskManager.getHistory().size());
+    }
+
+    @Test // Проверка, того, что при удалении эпиков из истории они удаляются со своими подзадачами
+    void shouldDeletedAllEpicsAndTheirSubtasksFromHistory() {
+        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
+        taskManager.createEpic(new Epic(0,
+                "Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>()));
+        taskManager.createSubtask(new Subtask(0, "Закончить теорию", "Пройти все уроки спринта", TaskStatus.DONE, 1));
+        taskManager.createSubtask(new Subtask(0, "Закончить практику", "Сдать ТЗ 6", TaskStatus.NEW, 1));
+        taskManager.getTaskById(0);
+        taskManager.getEpicById(1);
+        taskManager.getSubtaskById(2);
+        taskManager.getSubtaskById(3);
+        taskManager.deleteAllEpics();
+        Assertions.assertEquals(1, taskManager.getHistory().size());
+    }
+
+    @Test // Проверка, того, что при очистке всех подзадач они удаляются из истории
+    void shouldDeleteAllSubtasksFromHistory() {
+        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
+        taskManager.createEpic(new Epic(0,
+                "Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>()));
+        taskManager.createSubtask(new Subtask(0, "Закончить теорию", "Пройти все уроки спринта", TaskStatus.DONE, 1));
+        taskManager.createSubtask(new Subtask(0, "Закончить практику", "Сдать ТЗ 6", TaskStatus.NEW, 1));
+        taskManager.getTaskById(0);
+        taskManager.getEpicById(1);
+        taskManager.getSubtaskById(2);
+        taskManager.getSubtaskById(3);
+        taskManager.deleteAllSubtasks();
+        Assertions.assertEquals(2, taskManager.getHistory().size());
+    }
+
+    @Test // Проверка, того что в истории хранятся только последние вызовы задач;
+    void shouldnotRepeatInHistory() {
+        taskManager.createTask(new Task(1, "Уборка", "Помыть посуду", TaskStatus.NEW));
+        taskManager.createTask(new Task(1, "Учёба", "Выучить стих", TaskStatus.DONE));
+        taskManager.getTaskById(1);
+        taskManager.getTaskById(0);
+        taskManager.getTaskById(0);
+        taskManager.getTaskById(1);
+        Assertions.assertEquals(2, taskManager.getHistory().size());
     }
 }
