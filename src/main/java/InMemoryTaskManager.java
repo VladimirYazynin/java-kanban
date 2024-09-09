@@ -76,38 +76,26 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(Integer id) {
-        for (Task task : tasks.values()) {
-            if (task.getId() == id) {
-                historyManager.add(task);
-                return task;
-            }
-        }
-
-        return null;
+        Task task = tasks.get(id);
+        if (task != null)
+            historyManager.add(task);
+        return task;
     }
 
     @Override
     public Epic getEpicById(Integer id) {
-        for (Epic epic : epics.values()) {
-            if (epic.getId() == id) {
-                historyManager.add(epic);
-                return epic;
-            }
-        }
-
-        return null;
+        Epic epic = epics.get(id);
+        if (epic != null)
+            historyManager.add(epic);
+        return epic;
     }
 
     @Override
     public Subtask getSubtaskById(Integer id) {
-        for (Subtask subtask : subtasks.values()) {
-            if (subtask.getId() == id) {
-                historyManager.add(subtask);
-                return subtask;
-            }
-        }
-
-        return null;
+        Subtask subtask = subtasks.get(id);
+        if (subtask != null)
+            historyManager.add(subtask);
+        return subtask;
     }
 
     @Override
@@ -247,23 +235,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private Epic findEpicById(Integer id) {
-        for (Epic epic : epics.values()) {
-            if (epic.getId() == id) {
-                return epic;
-            }
-        }
-
-        return null;
+        return epics.get(id);
     }
 
     private Subtask findSubtaskById(Integer id) {
-        for (Subtask subtask : subtasks.values()) {
-            if (subtask.getId() == id) {
-                return subtask;
-            }
-        }
-
-        return null;
+        return subtasks.get(id);
     }
 
 }
