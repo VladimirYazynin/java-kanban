@@ -6,6 +6,7 @@ public class Task {
     private String title;
     private String description;
     private TaskStatus status;
+    private final TaskType taskType = TaskType.TASK;
 
     public Integer getId() {
         return id;
@@ -45,12 +46,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                '}';
+        return String.format("%d,%s,%s,%s,%s", id, taskType, title, status, description);
     }
 
 }
