@@ -1,3 +1,5 @@
+package model;
+
 public class Subtask extends Task {
 
     private final Integer idEpictask;
@@ -13,8 +15,19 @@ public class Subtask extends Task {
     }
 
     @Override
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
+    @Override
+    public Integer getEpicId() {
+        return idEpictask;
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
+
         sb.append(idEpictask);
         return sb.toString();
     }

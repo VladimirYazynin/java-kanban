@@ -1,3 +1,9 @@
+package service;
+
+import model.Epic;
+import model.Subtask;
+import model.Task;
+
 import java.util.List;
 
 public interface TaskManager {
@@ -36,6 +42,8 @@ public interface TaskManager {
     void deleteEpicById(Integer id);
 
     void deleteSubtaskById(Integer id);
+
+    List<Task> getAll();
 
     List<Subtask> getAllSubtasksOfEpicById(Integer id);
 

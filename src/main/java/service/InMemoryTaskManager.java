@@ -1,3 +1,10 @@
+package service;
+
+import model.Epic;
+import model.Subtask;
+import model.Task;
+import model.TaskStatus;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -186,7 +193,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubtaskById(Integer id) {
         if (subtasks.containsKey(id)) {
-            getEpicById(getSubtaskById(id).getIdEpictask()).getSubtasksId().remove(id); //Удаление id subtask из Epic
+            getEpicById(getSubtaskById(id).getIdEpictask()).getSubtasksId().remove(id); //Удаление id subtask из model.Epic
             historyManager.remove(id);
             subtasks.remove(id);
         }
@@ -230,6 +237,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public List<Task> getAll() {
+        List<Task> result = new ArrayList<>();
+
+        for (Task task : getAllTasks())
+            result.add(task);
+
+        for (Epic epic : getAllEpics())
+            result.add(epic);
+
+        for (Subtask subtask : getAllSubtasks())
+            result.add(subtask);
+
+        return result;
+    }
+
+    @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
@@ -240,6 +263,26 @@ public class InMemoryTaskManager implements TaskManager {
 
     private Subtask findSubtaskById(Integer id) {
         return subtasks.get(id);
+    }
+
+    public Integer getTaskCounter() {
+        return taskCounter;
+    }
+
+    protected void setTaskCounter(Integer taskCounter) {
+        this.taskCounter = taskCounter;
+    }
+
+    protected Map<Integer, Task> getTasksMap() {
+        return tasks;
+    }
+
+    protected Map<Integer, Epic> getEpicsMap() {
+        return epics;
+    }
+
+    protected Map<Integer, Subtask> getSubtasksMap() {
+        return subtasks;
     }
 
 }
