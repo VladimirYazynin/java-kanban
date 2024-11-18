@@ -9,23 +9,23 @@ import model.TaskType;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private Path savePath;
+    private File savePath;
 
-    public FileBackedTaskManager(Path savePath) {
+    public FileBackedTaskManager(File savePath) {
         super();
         this.savePath = savePath;
 
     }
 
-    public static FileBackedTaskManager loadFromFile(Path path) {
+    public static FileBackedTaskManager loadFromFile(File path) {
         FileBackedTaskManager manager = new FileBackedTaskManager(path);
         manager.loadData();
         return manager;
@@ -66,14 +66,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 currentEpic.getSubtasksId().add(subtask.getId());
             }
         } catch (IOException exception) {
-            throw new ManagerSaveException("Ошибка чтения файла: " + savePath.getFileName(), exception);
+            throw new ManagerSaveException("Ошибка чтения файла: " + savePath.getName(), exception);
         }
 
         setTaskCounter(maxId);
     }
 
     public void save() {
-        try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(String.valueOf(savePath.getFileName())))) {
+        try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(String.valueOf(savePath.getAbsolutePath())))) {
 
 
             for (Task task : getAllTasks()) {
@@ -88,7 +88,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 fileWriter.write(toString(subtask) + "\n");
             }
         } catch (IOException exception) {
-            throw new ManagerSaveException("Ошибка при сохранении в файл: " + savePath.getFileName(), exception);
+            throw new ManagerSaveException("Ошибка при сохранении в файл: " + savePath.getName(), exception);
         }
 
     }
@@ -200,7 +200,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Path getSavePath() {
+    public File getSavePath() {
         return savePath;
     }
 }

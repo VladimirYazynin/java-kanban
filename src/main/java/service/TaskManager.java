@@ -4,7 +4,7 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
-import java.nio.file.Path;
+import java.io.File;
 import java.util.List;
 
 public interface TaskManager {
@@ -50,5 +50,5 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
-    Path getSavePath();
+    File getSavePath();
 }

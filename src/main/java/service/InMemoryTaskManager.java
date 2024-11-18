@@ -5,7 +5,7 @@ import model.Subtask;
 import model.Task;
 import model.TaskStatus;
 
-import java.nio.file.Path;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -287,7 +287,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Path getSavePath() {
+    public File getSavePath() {
         return null;
     }
 

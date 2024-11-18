@@ -8,6 +8,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.util.ArrayList;
 
 public abstract class TaskManagerTest<T extends TaskManager> {
@@ -19,16 +20,12 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @BeforeEach
     void init() {
         taskManager = createManager();
-        System.out.println("before");
     }
 
     @AfterEach
     void clear() {
         if (taskManager instanceof FileBackedTaskManager)
-            taskManager.getSavePath().toFile().delete();
-
-        System.out.println("after");
-//            FileBackedTaskManagerTest.getTempFile().delete();
+            taskManager.getSavePath().delete();
     }
 
     @Test
