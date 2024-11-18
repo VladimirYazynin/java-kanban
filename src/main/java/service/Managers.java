@@ -4,8 +4,6 @@ import java.nio.file.Paths;
 
 public class Managers {
 
-    private static final String saveFile = "taskInfo.csv";
-
     public static TaskManager getDefault() {
         return new InMemoryTaskManager();
     }
@@ -14,7 +12,7 @@ public class Managers {
         return new InMemoryHistoryManager();
     }
 
-    public static FileBackedTaskManager getFileBackedTaskManager() {
+    public static TaskManager getFileBackedTaskManager(String saveFile) {
         return FileBackedTaskManager.loadFromFile(Paths.get(saveFile));
     }
 

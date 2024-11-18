@@ -1,19 +1,38 @@
+package service;
+
+import model.Epic;
+import model.Subtask;
+import model.Task;
+import model.TaskStatus;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 
-class InMemoryTaskManagerTest {
-    TaskManager taskManager;
+public abstract class TaskManagerTest<T extends TaskManager> {
+    T taskManager;
+    Task task;
+
+    protected abstract T createManager();
 
     @BeforeEach
-    void beforeEach() {
-        taskManager = Managers.getDefault();
+    void init() {
+        taskManager = createManager();
+        System.out.println("before");
+    }
+
+    @AfterEach
+    void clear() {
+        if (taskManager instanceof FileBackedTaskManager)
+            taskManager.getSavePath().toFile().delete();
+
+        System.out.println("after");
+//            FileBackedTaskManagerTest.getTempFile().delete();
     }
 
     @Test
-        // проверьте, что экземпляры класса Task равны друг другу, если равен их id;
+        // проверьте, что экземпляры класса model.Task равны друг другу, если равен их id;
     void shouldTaskObjectEqualsIfIdSame() {
         Task task = new Task(1, "Уборка", "Помыть посуду", TaskStatus.NEW);
         Task newTask = new Task(1, "Учёба", "Выучить стих", TaskStatus.DONE);
@@ -21,7 +40,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-        // проверьте, что наследники класса Task равны друг другу, если равен их id;
+        // проверьте, что наследники класса model.Task равны друг другу, если равен их id;
     void taskHeirsShouldBeEqualsIfIdSame() {
         Epic epic = new Epic(0, "Переезд", "Выполнить много дел",
                 TaskStatus.NEW, new ArrayList<>());
@@ -36,18 +55,18 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-        // проверьте, что объект Epic нельзя добавить в самого себя в виде подзадачи;
+        // проверьте, что объект model.Epic нельзя добавить в самого себя в виде подзадачи;
     void epicCantBeAsEpicSubtask() {
         taskManager.createEpic(new Epic(0, "Переезд", "Выполнить много дел",
-                TaskStatus.NEW, new ArrayList<>() {{
-            add(0);
-        }})
+                        TaskStatus.NEW, new ArrayList<>() {{
+                    add(0);
+                }})
         );
         Assertions.assertEquals(0, taskManager.getAllEpics().size());
     }
 
     @Test
-        // проверьте, что объект Subtask нельзя сделать своим же эпиком;
+        // проверьте, что объект model.Subtask нельзя сделать своим же эпиком;
     void subtaskCantBeAsSubtaskEpic() {
         taskManager.createSubtask(new Subtask(0, "Сбор вещей",
                 "Уложить всё в коробки", TaskStatus.IN_PROGRESS, 0));
@@ -55,7 +74,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-        // Проверка того, что InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
+        // Проверка того, что service.InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
     void shouldInMemoryTaskManagerAddTasksAndFindItById() {
         Task savedTask = new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW);
         taskManager.createTask(savedTask);
@@ -90,7 +109,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-        // Проверка, того, что HistoryManager сохраняет в себе актуальную версию задачи, а также добавляет её в конец списка;
+        // Проверка, того, что service.HistoryManager сохраняет в себе актуальную версию задачи, а также добавляет её в конец списка;
     void shouldSavedOldTaskVersionInHistory() {
         taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
         taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
@@ -161,4 +180,5 @@ class InMemoryTaskManagerTest {
         taskManager.getTaskById(1);
         Assertions.assertEquals(2, taskManager.getHistory().size());
     }
+
 }

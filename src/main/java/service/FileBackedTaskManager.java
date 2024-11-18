@@ -194,4 +194,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         super.deleteSubtaskById(id);
         save();
     }
+
+    public void init() {
+        loadData();
+    }
+
+    @Override
+    public Path getSavePath() {
+        return savePath;
+    }
 }

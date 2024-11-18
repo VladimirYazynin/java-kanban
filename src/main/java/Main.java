@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager taskManager = Managers.getFileBackedTaskManager();
+        TaskManager taskManager = Managers.getFileBackedTaskManager("taskInfo.csv");
         taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
         taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
         taskManager.createEpic(new Epic(0, "Закончить 6 спринт", "Выполнить все задания курса", TaskStatus.DONE, new ArrayList<>()));
@@ -31,7 +31,7 @@ public class Main {
         taskManager.getSubtaskById(6);
         System.out.println(taskManager.getHistory());
 
-        TaskManager taskManager2 = Managers.getFileBackedTaskManager();
+        TaskManager taskManager2 = Managers.getFileBackedTaskManager("taskInfo.csv");
         System.out.println("Наполнение менеджеров равно: " + (taskManager.getAll().size() == taskManager2.getAll().size()));
     }
 }

@@ -4,6 +4,7 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public interface TaskManager {
@@ -48,4 +49,6 @@ public interface TaskManager {
     List<Subtask> getAllSubtasksOfEpicById(Integer id);
 
     List<Task> getHistory();
+
+    Path getSavePath();
 }
