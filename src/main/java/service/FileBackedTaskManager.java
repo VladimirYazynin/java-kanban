@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private File savePath;
+    private final File savePath;
 
     public FileBackedTaskManager(File savePath) {
         super();
@@ -72,7 +72,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         setTaskCounter(maxId);
     }
 
-    public void save() {
+    protected void save() {
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(String.valueOf(savePath.getAbsolutePath())))) {
 
 
@@ -174,6 +174,24 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         super.updateSubtask(subtask);
+        save();
+    }
+
+    @Override
+    public void updateTaskById(Integer id, Task task) {
+        super.updateTaskById(id, task);
+        save();
+    }
+
+    @Override
+    public void updateEpicId(Integer id, Epic epic) {
+        super.updateEpicId(id, epic);
+        save();
+    }
+
+    @Override
+    public void updateSubtaskById(Integer id, Subtask subtask) {
+        super.updateSubtaskById(id, subtask);
         save();
     }
 
