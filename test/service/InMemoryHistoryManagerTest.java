@@ -1,3 +1,8 @@
+package service;
+
+import model.Epic;
+import model.Task;
+import model.TaskStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

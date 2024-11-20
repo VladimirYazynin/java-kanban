@@ -1,3 +1,7 @@
+package service;
+
+import model.Task;
+
 import java.util.Objects;
 
 public class Node {

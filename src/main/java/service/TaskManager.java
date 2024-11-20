@@ -1,3 +1,10 @@
+package service;
+
+import model.Epic;
+import model.Subtask;
+import model.Task;
+
+import java.io.File;
 import java.util.List;
 
 public interface TaskManager {
@@ -31,13 +38,23 @@ public interface TaskManager {
 
     void updateSubtask(Subtask subtask);
 
+    void updateTaskById(Integer id, Task task);
+
+    void updateEpicId(Integer id, Epic epic);
+
+    void updateSubtaskById(Integer id, Subtask subtask);
+
     void deleteTaskById(Integer id);
 
     void deleteEpicById(Integer id);
 
     void deleteSubtaskById(Integer id);
 
+    List<Task> getAll();
+
     List<Subtask> getAllSubtasksOfEpicById(Integer id);
 
     List<Task> getHistory();
+
+    File getSavePath();
 }

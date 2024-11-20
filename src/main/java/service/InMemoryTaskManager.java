@@ -1,3 +1,11 @@
+package service;
+
+import model.Epic;
+import model.Subtask;
+import model.Task;
+import model.TaskStatus;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -159,6 +167,32 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void updateTaskById(Integer id, Task task) {
+        if (tasks.containsKey(id))
+            tasks.put(task.getId(), task);
+    }
+
+    @Override
+    public void updateEpicId(Integer id, Epic epic) {
+        if (epics.containsKey(id)) {
+            if (epic.getSubtasksId().contains(id))
+                return;
+            epics.put(id, epic);
+            checkEpicStatus(id);
+        }
+    }
+
+    @Override
+    public void updateSubtaskById(Integer id, Subtask subtask) {
+        if (subtasks.containsKey(id)) {
+            if (id == subtask.getIdEpictask())
+                return;
+            subtasks.put(id, subtask);
+            checkEpicStatus(subtask.getIdEpictask());
+        }
+    }
+
+    @Override
     public void deleteTaskById(Integer id) {
         if (tasks.containsKey(id)) {
             historyManager.remove(id);
@@ -186,7 +220,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubtaskById(Integer id) {
         if (subtasks.containsKey(id)) {
-            getEpicById(getSubtaskById(id).getIdEpictask()).getSubtasksId().remove(id); //Удаление id subtask из Epic
+            getEpicById(getSubtaskById(id).getIdEpictask()).getSubtasksId().remove(id); //Удаление id subtask из model.Epic
             historyManager.remove(id);
             subtasks.remove(id);
         }
@@ -230,6 +264,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public List<Task> getAll() {
+        List<Task> result = new ArrayList<>();
+
+        for (Task task : getAllTasks())
+            result.add(task);
+
+        for (Epic epic : getAllEpics())
+            result.add(epic);
+
+        for (Subtask subtask : getAllSubtasks())
+            result.add(subtask);
+
+        return result;
+    }
+
+    @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
@@ -240,6 +290,31 @@ public class InMemoryTaskManager implements TaskManager {
 
     private Subtask findSubtaskById(Integer id) {
         return subtasks.get(id);
+    }
+
+    public Integer getTaskCounter() {
+        return taskCounter;
+    }
+
+    protected void setTaskCounter(Integer taskCounter) {
+        this.taskCounter = taskCounter;
+    }
+
+    protected Map<Integer, Task> getTasksMap() {
+        return tasks;
+    }
+
+    protected Map<Integer, Epic> getEpicsMap() {
+        return epics;
+    }
+
+    protected Map<Integer, Subtask> getSubtasksMap() {
+        return subtasks;
+    }
+
+    @Override
+    public File getSavePath() {
+        return null;
     }
 
 }
