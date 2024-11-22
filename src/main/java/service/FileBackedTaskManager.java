@@ -46,6 +46,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     break;
 
                 Task currentTask = fromString(currentLine);
+                validateTask(currentTask);
+                prioritizedTasks.add(currentTask);
                 switch (currentTask.getTaskType()) {
                     case TASK:
                         tasksMap.put(currentTask.getId(), currentTask);

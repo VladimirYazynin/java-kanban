@@ -25,7 +25,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Epic> epics;
     private final Map<Integer, Subtask> subtasks;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
-    private final Set<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+    protected final Set<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime));
 
     public InMemoryTaskManager() {
         tasks = new HashMap<>();
@@ -36,14 +36,16 @@ public class InMemoryTaskManager implements TaskManager {
     private boolean checkTaskTimeValidity(Task taskForAdd, Task taskFromList) {
         if (taskForAdd.getId() == taskFromList.getId())
             return true;
+
         return taskForAdd.getStartTime().isAfter(taskFromList.getEndTime()) ||
                 taskForAdd.getEndTime().isBefore(taskFromList.getStartTime());
     }
 
     protected void validateTask(Task task) {
         boolean isValid = getPrioritizedTasks().stream()
-                .noneMatch(pt -> checkTaskTimeValidity(task, pt));
-        if (!isValid)
+                .anyMatch(pt -> !checkTaskTimeValidity(task, pt));
+
+        if (isValid)
             throw new ValidationException("Произошло пересечение с другой задачей");
     }
 

@@ -12,28 +12,10 @@ public class Main {
 
     public static void main(String[] args) {
         TaskManager taskManager = Managers.getFileBackedTaskManager("taskInfo.csv");
-        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
-        taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
-        taskManager.createEpic(new Epic(0, "Закончить 6 спринт", "Выполнить все задания курса", TaskStatus.DONE, new ArrayList<>()));
-        taskManager.createSubtask(new Subtask(0, "Закончить теорию", "Пройти все уроки спринта", TaskStatus.DONE, 2));
-        taskManager.createSubtask(new Subtask(0, "Закончить практику", "Сдать ТЗ 6", TaskStatus.NEW, 2));
-        taskManager.createSubtask(new Subtask(0, "Поработать над тестами", "Обновить старые и добавить новые тесты", TaskStatus.DONE, 2));
-        taskManager.createEpic(new Epic(0, "Погулять", "Встретиться с друзьями в парке", TaskStatus.IN_PROGRESS, new ArrayList<>()));
-        System.out.println(taskManager.getHistory());
-        taskManager.createSubtask(new Subtask("Добавить новые функции","написать 2 новых метода", TaskStatus.NEW, 2, LocalDateTime.now(), 5));
-
-        taskManager.getTaskById(1);
-        taskManager.getTaskById(0);
-        taskManager.getTaskById(1);
-        System.out.println(taskManager.getHistory());
-        taskManager.getEpicById(2);
-        taskManager.getSubtaskById(3);
-        taskManager.getSubtaskById(4);
-        taskManager.getEpicById(6);
-        taskManager.getSubtaskById(6);
-        System.out.println(taskManager.getHistory());
-
-        TaskManager taskManager2 = Managers.getFileBackedTaskManager("taskInfo.csv");
-        System.out.println("Наполнение менеджеров равно: " + (taskManager.getAll().size() == taskManager2.getAll().size()));
+        System.out.println(taskManager.getPrioritizedTasks());
+        taskManager.createTask(new Task("Дела по дому", "Зайти в магазин", TaskStatus.NEW, LocalDateTime.parse("2024-11-22T10:41:17"), 15));
+        taskManager.createTask(new Task("Отдых", "Посмотреть фильм", TaskStatus.NEW, LocalDateTime.parse("2024-11-27T10:41:17"), 15));
+        taskManager.createTask(new Task("", "Зайти в магазин", TaskStatus.NEW, LocalDateTime.parse("2024-10-22T10:30:00"), 25));
+        System.out.println(taskManager.getPrioritizedTasks());
     }
 }
