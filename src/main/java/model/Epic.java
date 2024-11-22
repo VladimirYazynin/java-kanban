@@ -16,13 +16,25 @@ public class Epic extends Task {
         endTime = getEndTime();
     }
 
+    public Epic(Integer id, String title, String description, TaskStatus status, List<Integer> subtasksId, LocalDateTime startTime, long duration) {
+        super(id, title, description, status, startTime, duration);
+        this.subtasksId = subtasksId;
+        endTime = getEndTime();
+    }
+
+    public Epic(Integer id, String title, String description, TaskStatus status, LocalDateTime startTime, long duration) {
+        super(id, title, description, status, startTime, duration);
+        subtasksId = new ArrayList<>();
+        endTime = getEndTime();
+    }
+
     public Epic(Integer id, String title, String description, TaskStatus status) {
         super(id, title, description, status);
         subtasksId = new ArrayList<>();
         endTime = getEndTime();
     }
 
-    public Epic(String title, String description, TaskStatus status, List<Integer> subtasksId, LocalDateTime startTime, long duration ) {
+    public Epic(String title, String description, TaskStatus status, List<Integer> subtasksId, LocalDateTime startTime, long duration) {
         super(title, description, status, startTime, duration);
         this.subtasksId = subtasksId;
         endTime = getEndTime();

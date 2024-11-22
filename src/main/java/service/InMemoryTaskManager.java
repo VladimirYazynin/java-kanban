@@ -10,7 +10,13 @@ import model.TaskStatus;
 import java.io.File;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -80,16 +86,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllTasks() {
-        for (Integer id : tasks.keySet())
+        for (Integer id : tasks.keySet()) {
             historyManager.remove(id);
+            prioritizedTasks.remove(findTaskById(id));
+        }
         tasks.clear();
     }
 
     @Override
     public void deleteAllEpics() {
         for (Integer id : epics.keySet()) {
-            for (Integer subtaskId : getEpicById(id).getSubtasksId())
+            for (Integer subtaskId : getEpicById(id).getSubtasksId()) {
                 historyManager.remove(subtaskId);
+                prioritizedTasks.remove(findSubtaskById(subtaskId));
+            }
             historyManager.remove(id);
         }
         epics.clear();
@@ -97,8 +107,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllSubtasks() {
-        for (Integer id : subtasks.keySet())
+        for (Integer id : subtasks.keySet()) {
             historyManager.remove(id);
+            prioritizedTasks.remove(findSubtaskById(id));
+        }
         subtasks.clear();
     }
 
@@ -255,6 +267,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteTaskById(Integer id) {
         if (tasks.containsKey(id)) {
             historyManager.remove(id);
+            prioritizedTasks.remove(findTaskById(id));
             tasks.remove(id);
         }
     }
@@ -266,6 +279,7 @@ public class InMemoryTaskManager implements TaskManager {
 
             for (Integer subtaskId : subtasksList) {
                 if (subtasks.containsKey(subtaskId)) {
+                    prioritizedTasks.remove(findSubtaskById(subtaskId));
                     subtasks.remove(subtaskId);
                     historyManager.remove(subtaskId);
                 }
@@ -281,6 +295,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subtasks.containsKey(id)) {
             getEpicById(getSubtaskById(id).getIdEpictask()).getSubtasksId().remove(id); //Удаление id subtask из model.Epic
             historyManager.remove(id);
+            prioritizedTasks.remove(findSubtaskById(id));
             subtasks.remove(id);
         }
     }

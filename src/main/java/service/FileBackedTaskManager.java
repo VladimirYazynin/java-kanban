@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -106,17 +107,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String title = taskInfo[2];
         TaskStatus status = TaskStatus.valueOf(taskInfo[3]);
         String description = taskInfo[4];
+        long duration = Long.parseLong(taskInfo[6]);
+        LocalDateTime startTime = LocalDateTime.parse(taskInfo[7]);
 
         Task task = null;
         switch (taskType) {
             case TASK:
-                task = new Task(id, title, description, status);
+                task = new Task(id, title, description, status, startTime, duration);
                 break;
             case EPIC:
-                task = new Epic(id, title, description, status);
+                task = new Epic(id, title, description, status, startTime, duration);
                 break;
             case SUBTASK:
-                task = new Subtask(id, title, description, status, Integer.valueOf(taskInfo[5]));
+                task = new Subtask(id, title, description, status, Integer.valueOf(taskInfo[5]), startTime, duration);
                 break;
         }
 
