@@ -5,6 +5,7 @@ import model.TaskStatus;
 import service.Managers;
 import service.TaskManager;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Main {
@@ -19,6 +20,7 @@ public class Main {
         taskManager.createSubtask(new Subtask(0, "Поработать над тестами", "Обновить старые и добавить новые тесты", TaskStatus.DONE, 2));
         taskManager.createEpic(new Epic(0, "Погулять", "Встретиться с друзьями в парке", TaskStatus.IN_PROGRESS, new ArrayList<>()));
         System.out.println(taskManager.getHistory());
+        taskManager.createSubtask(new Subtask("Добавить новые функции","написать 2 новых метода", TaskStatus.NEW, 2, LocalDateTime.now(), 5));
 
         taskManager.getTaskById(1);
         taskManager.getTaskById(0);

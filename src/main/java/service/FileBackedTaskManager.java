@@ -95,7 +95,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private String toString(Task task) {
         return task.getId() + "," + task.getTaskType() + "," + task.getTitle() + "," + task.getStatus() + ","
-                + task.getDescription() + "," + task.getEpicId();
+                + task.getDescription() + "," + task.getEpicId() + "," + task.getDuration() + "," + task.getStartTime();
     }
 
     private Task fromString(String value) {
