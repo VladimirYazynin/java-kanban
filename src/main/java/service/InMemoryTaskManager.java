@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -55,43 +56,25 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getAllTasks() {
-        List<Task> allTasks = new ArrayList<>();
-
-        for (Task task : tasks.values()) {
-            allTasks.add(task);
-        }
-
-        return allTasks;
+        return new ArrayList<>(tasks.values());
     }
 
     @Override
     public List<Epic> getAllEpics() {
-        List<Epic> allEpics = new ArrayList<>();
-
-        for (Epic epic : epics.values()) {
-            allEpics.add(epic);
-        }
-
-        return allEpics;
+        return new ArrayList<>(epics.values());
     }
 
     @Override
     public List<Subtask> getAllSubtasks() {
-        List<Subtask> allSubtasks = new ArrayList<>();
-
-        for (Subtask subtask : subtasks.values()) {
-            allSubtasks.add(subtask);
-        }
-
-        return allSubtasks;
+        return new ArrayList<>(subtasks.values());
     }
 
     @Override
     public void deleteAllTasks() {
-        for (Integer id : tasks.keySet()) {
-            historyManager.remove(id);
-            prioritizedTasks.remove(findTaskById(id));
-        }
+        tasks.values().forEach(task -> {
+            historyManager.remove(task.getId());
+            prioritizedTasks.remove(findTaskById(task.getId()));
+        });
         tasks.clear();
     }
 
@@ -109,10 +92,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllSubtasks() {
-        for (Integer id : subtasks.keySet()) {
-            historyManager.remove(id);
-            prioritizedTasks.remove(findSubtaskById(id));
-        }
+        subtasks.values().forEach(subtask -> {
+            historyManager.remove(subtask.getId());
+            prioritizedTasks.remove(findSubtaskById(subtask.getId()));
+        });
         subtasks.clear();
     }
 
@@ -277,15 +260,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteEpicById(Integer id) {
         if (epics.containsKey(id)) {
-            List<Integer> subtasksList = epics.get(id).getSubtasksId();
-
-            for (Integer subtaskId : subtasksList) {
-                if (subtasks.containsKey(subtaskId)) {
-                    prioritizedTasks.remove(findSubtaskById(subtaskId));
-                    subtasks.remove(subtaskId);
-                    historyManager.remove(subtaskId);
-                }
-            }
+            epics.get(id).getSubtasksId().forEach(subtaskId -> {
+                prioritizedTasks.remove(findSubtaskById(subtaskId));
+                subtasks.remove(subtaskId);
+                historyManager.remove(subtaskId);
+            });
 
             historyManager.remove(id);
             epics.remove(id);
@@ -295,7 +274,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteSubtaskById(Integer id) {
         if (subtasks.containsKey(id)) {
-            getEpicById(getSubtaskById(id).getIdEpictask()).getSubtasksId().remove(id); //Удаление id subtask из model.Epic
+            findEpicById(getSubtaskById(id).getIdEpictask()).getSubtasksId().remove(id); //Удаление id subtask из model.Epic
             historyManager.remove(id);
             prioritizedTasks.remove(findSubtaskById(id));
             subtasks.remove(id);
@@ -304,13 +283,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Subtask> getAllSubtasksOfEpicById(Integer id) {
-        List<Subtask> resultList = new ArrayList<>();
-
-        for (Integer subtaskId : getEpicById(id).getSubtasksId()) {
-            resultList.add(subtasks.get(subtaskId));
-        }
-
-        return resultList;
+        return findEpicById(id).getSubtasksId().stream()
+                .map(subtaskId -> subtasks.get(subtaskId))
+                .collect(Collectors.toList());
     }
 
     private void calculateEpicState(Integer epicId) {

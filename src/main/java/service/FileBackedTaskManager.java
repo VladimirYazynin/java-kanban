@@ -49,15 +49,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 validateTask(currentTask);
                 prioritizedTasks.add(currentTask);
                 switch (currentTask.getTaskType()) {
-                    case TASK:
-                        tasksMap.put(currentTask.getId(), currentTask);
-                        break;
-                    case EPIC:
-                        epicsMap.put(currentTask.getId(), (Epic) currentTask);
-                        break;
-                    case SUBTASK:
-                        subtasksMap.put(currentTask.getId(), (Subtask) currentTask);
-                        break;
+                    case TASK -> tasksMap.put(currentTask.getId(), currentTask);
+                    case EPIC -> epicsMap.put(currentTask.getId(), (Epic) currentTask);
+                    case SUBTASK -> subtasksMap.put(currentTask.getId(), (Subtask) currentTask);
                 }
 
                 if (currentTask.getId() > maxId)
@@ -77,19 +71,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     protected void save() {
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(String.valueOf(savePath.getAbsolutePath())))) {
-
-
-            for (Task task : getAllTasks()) {
-                fileWriter.write(toString(task) + "\n");
-            }
-
-            for (Epic epic : getAllEpics()) {
-                fileWriter.write(toString(epic) + "\n");
-            }
-
-            for (Subtask subtask : getAllSubtasks()) {
-                fileWriter.write(toString(subtask) + "\n");
-            }
+            getAll().stream()
+                    .forEach(task -> {
+                        try {
+                            fileWriter.write(toString(task) + "\n");
+                        } catch (IOException exception) {
+                            throw new ManagerSaveException("Ошибка при сохранении в файл: " + savePath.getName(), exception);
+                        }
+                    });
         } catch (IOException exception) {
             throw new ManagerSaveException("Ошибка при сохранении в файл: " + savePath.getName(), exception);
         }
@@ -114,15 +103,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         Task task = null;
         switch (taskType) {
-            case TASK:
-                task = new Task(id, title, description, status, startTime, duration);
-                break;
-            case EPIC:
-                task = new Epic(id, title, description, status, startTime, duration);
-                break;
-            case SUBTASK:
-                task = new Subtask(id, title, description, status, Integer.valueOf(taskInfo[5]), startTime, duration);
-                break;
+            case TASK -> task = new Task(id, title, description, status, startTime, duration);
+            case EPIC -> task = new Epic(id, title, description, status, startTime, duration);
+            case SUBTASK ->
+                    task = new Subtask(id, title, description, status, Integer.valueOf(taskInfo[5]), startTime, duration);
         }
 
         return task;
