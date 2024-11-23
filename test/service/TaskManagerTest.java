@@ -1,5 +1,6 @@
 package service;
 
+import exception.ValidationException;
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -74,7 +75,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
         // Проверка того, что service.InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
     void shouldInMemoryTaskManagerAddTasksAndFindItById() {
-        //todo
         Task savedTask = new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30);
         taskManager.createTask(savedTask);
         Assertions.assertEquals(savedTask, taskManager.getAllTasks().get(0));
@@ -184,6 +184,95 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.getTaskById(0);
         taskManager.getTaskById(1);
         Assertions.assertEquals(2, taskManager.getHistory().size());
+    }
+
+    @Test
+    void epicDurationShouldBeSumOfHisSubtasks() {
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now(), 0));
+        Assertions.assertEquals(0, taskManager.getEpicById(0).getDuration());
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.DONE, 0, LocalDateTime.now().plusMinutes(10), 300));
+        Assertions.assertEquals(300, taskManager.getEpicById(0).getDuration());
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.NEW, 0, LocalDateTime.now().plusMinutes(320), 300));
+        Assertions.assertEquals(600, taskManager.getEpicById(0).getDuration());
+    }
+
+    @Test
+    void epicStatusShouldBeNEW() {
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now(), 0));
+        Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.NEW, 0, LocalDateTime.now().plusMinutes(10), 300));
+        Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.NEW, 0, LocalDateTime.now().plusMinutes(320), 300));
+        Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
+    }
+
+    @Test
+    void epicStatusShouldBeDONE() {
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.IN_PROGRESS, new ArrayList<>(), LocalDateTime.now(), 0));
+        Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.DONE, 0, LocalDateTime.now().plusMinutes(10), 300));
+        Assertions.assertEquals(TaskStatus.DONE, taskManager.getEpicById(0).getStatus());
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.DONE, 0, LocalDateTime.now().plusMinutes(320), 300));
+        Assertions.assertEquals(TaskStatus.DONE, taskManager.getEpicById(0).getStatus());
+    }
+
+    @Test
+    void epicStatusShouldBeIN_PROGRESS() {
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now(), 0));
+        Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.DONE, 0, LocalDateTime.now().plusMinutes(10), 300));
+        Assertions.assertEquals(TaskStatus.DONE, taskManager.getEpicById(0).getStatus());
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.NEW, 0, LocalDateTime.now().plusMinutes(320), 300));
+        Assertions.assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpicById(0).getStatus());
+    }
+
+    @Test
+    void epicStatusShouldBeIN_PROGRESSifAllSubtasksIN_PROGRESS() {
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.IN_PROGRESS, new ArrayList<>(), LocalDateTime.now(), 0));
+        Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.IN_PROGRESS, 0, LocalDateTime.now().plusMinutes(10), 300));
+        Assertions.assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpicById(0).getStatus());
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.IN_PROGRESS, 0, LocalDateTime.now().plusMinutes(320), 300));
+        Assertions.assertEquals(TaskStatus.IN_PROGRESS, taskManager.getEpicById(0).getStatus());
+    }
+
+    @Test
+    void shouldnotProblemWithTimeIntervals() {
+        Assertions.assertDoesNotThrow(() ->
+        {
+            taskManager.createTask(new Task("Уборка", "Протереть пыль",
+                    TaskStatus.NEW, LocalDateTime.now(), 30));
+            taskManager.createTask(new Task("Отдых", "Посмотреть фильм",
+                    TaskStatus.NEW, LocalDateTime.now().plusMinutes(60), 150));
+            taskManager.createTask(new Task("Работа", "Написать тесты",
+                    TaskStatus.NEW, LocalDateTime.now().minusHours(3), 70));
+        });
+    }
+
+    @Test
+    void shouldBeValidationException() {
+        Assertions.assertThrows(ValidationException.class,
+                () -> {
+                    taskManager.createTask(new Task("Уборка", "Протереть пыль",
+                            TaskStatus.NEW, LocalDateTime.now(), 30));
+                    taskManager.createTask(new Task("Отдых", "Посмотреть фильм",
+                            TaskStatus.NEW, LocalDateTime.now(), 150));
+                });
     }
 
 }
