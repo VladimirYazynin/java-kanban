@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public abstract class TaskManagerTest<T extends TaskManager> {
@@ -31,8 +32,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
         // проверьте, что экземпляры класса model.Task равны друг другу, если равен их id;
     void shouldTaskObjectEqualsIfIdSame() {
-        Task task = new Task(1, "Уборка", "Помыть посуду", TaskStatus.NEW);
-        Task newTask = new Task(1, "Учёба", "Выучить стих", TaskStatus.DONE);
+        Task task = new Task(1, "Уборка", "Помыть посуду", TaskStatus.NEW, LocalDateTime.now(), 10);
+        Task newTask = new Task(1, "Учёба", "Выучить стих", TaskStatus.DONE, LocalDateTime.now().plusMinutes(30), 30);
         Assertions.assertEquals(task, newTask);
     }
 
@@ -73,28 +74,31 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
         // Проверка того, что service.InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
     void shouldInMemoryTaskManagerAddTasksAndFindItById() {
-        Task savedTask = new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW);
+        //todo
+        Task savedTask = new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30);
         taskManager.createTask(savedTask);
         Assertions.assertEquals(savedTask, taskManager.getAllTasks().get(0));
-        Epic savedEpic = new Epic(1, "Мегауборка", "Помыть посуду", TaskStatus.NEW, new ArrayList<>());
+        Epic savedEpic = new Epic(1, "Мегауборка", "Помыть посуду",
+                TaskStatus.NEW, new ArrayList<>(), LocalDateTime.now().plusMinutes(125), 10);
         taskManager.createEpic(savedEpic);
-        Assertions.assertEquals(savedEpic, taskManager.getEpicById(savedEpic.getId()));
+        Assertions.assertEquals(savedEpic, taskManager.getAllEpics().get(0));
         Subtask savedSubtask = new Subtask(2, "Стирка",
-                "Постирать веши", TaskStatus.IN_PROGRESS, 1);
+                "Постирать веши", TaskStatus.IN_PROGRESS, 1, LocalDateTime.now().plusMinutes(140), 60);
         taskManager.createSubtask(savedSubtask);
-        Assertions.assertEquals(savedSubtask, taskManager.getSubtaskById(savedSubtask.getId()));
+        Assertions.assertEquals(savedSubtask, taskManager.getAllSubtasks().get(0));
     }
 
     @Test
         // Проверка того, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера;
     void generatedIdGoodWorksWithHandleId() {
-        Task task = new Task(1000, "Уборка", "Убрать снег во дворе", TaskStatus.NEW);
-        taskManager.createTask(task);
+        Task taskWithoutId = new Task("Уборка", "Убрать снег во дворе", TaskStatus.NEW, LocalDateTime.now(), 120);
+        Task taskWithId = new Task(1000, "Мегауборка", "Помыть посуду", TaskStatus.DONE, LocalDateTime.now().plusMinutes(125), 10);
+        taskManager.createTask(taskWithoutId);
+        taskManager.createTask(taskWithId);
         Assertions.assertNull(taskManager.getTaskById(1000));
-        Task savedTask = taskManager.getAllTasks().get(0);
-        savedTask.setId(1000);
-        taskManager.updateTask(savedTask);
-        Assertions.assertNull(taskManager.getTaskById(1000));
+        Assertions.assertNotNull(taskManager.getTaskById(0));
+        Assertions.assertNotNull(taskManager.getTaskById(1));
+        Assertions.assertEquals(2, taskManager.getAll().size());
     }
 
     @Test
@@ -108,23 +112,25 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
         // Проверка, того, что service.HistoryManager сохраняет в себе актуальную версию задачи, а также добавляет её в конец списка;
     void shouldSavedOldTaskVersionInHistory() {
-        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
-        taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
+        LocalDateTime firstTaskStartTime = LocalDateTime.now();
+        taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, firstTaskStartTime, 30));
+        taskManager.createTask(new Task("Отдых", "Посмотреть фильм", TaskStatus.NEW, LocalDateTime.now().plusMinutes(60), 150));
         taskManager.getTaskById(0);
         taskManager.getTaskById(1);
-        taskManager.updateTask(new Task(0, "Работа", "Написать тесты", TaskStatus.IN_PROGRESS));
+        taskManager.updateTask(new Task(0, "Работа", "Написать тесты", TaskStatus.IN_PROGRESS, firstTaskStartTime, 45));
         taskManager.getTaskById(0);
-        Assertions.assertEquals(new Task(0, "Работа", "Написать тесты", TaskStatus.IN_PROGRESS), taskManager.getHistory().get(1));
+        Assertions.assertEquals(
+                new Task(0, "Работа", "Написать тесты", TaskStatus.IN_PROGRESS, firstTaskStartTime, 45),
+                taskManager.getHistory().get(1));
     }
 
     @Test
         //Проверка, того, что при удалении всех задач они также удаляются из истории
     void shouldDeletedAllTasksFromHistory() {
-        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
-        taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
-        taskManager.createEpic(new Epic(0,
-                "Закончить 6 спринт", "Выполнить все задания курса",
-                TaskStatus.DONE, new ArrayList<>()));
+        taskManager.createTask(new Task("Уборка", "Помыть посуду", TaskStatus.NEW, LocalDateTime.now(), 10));
+        taskManager.createTask(new Task("Учёба", "Выучить стих", TaskStatus.DONE, LocalDateTime.now().plusMinutes(30), 30));
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(65), 0));
         taskManager.getTaskById(0);
         taskManager.getTaskById(1);
         taskManager.getEpicById(2);
@@ -135,12 +141,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
         // Проверка, того, что при удалении эпиков из истории они удаляются со своими подзадачами
     void shouldDeletedAllEpicsAndTheirSubtasksFromHistory() {
-        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
-        taskManager.createEpic(new Epic(0,
-                "Закончить 6 спринт", "Выполнить все задания курса",
-                TaskStatus.DONE, new ArrayList<>()));
-        taskManager.createSubtask(new Subtask(0, "Закончить теорию", "Пройти все уроки спринта", TaskStatus.DONE, 1));
-        taskManager.createSubtask(new Subtask(0, "Закончить практику", "Сдать ТЗ 6", TaskStatus.NEW, 1));
+        taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(35), 0));
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.DONE, 1, LocalDateTime.now().plusMinutes(40), 300));
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.NEW, 1, LocalDateTime.now().plusMinutes(350), 300));
         taskManager.getTaskById(0);
         taskManager.getEpicById(1);
         taskManager.getSubtaskById(2);
@@ -152,12 +159,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
         // Проверка, того, что при очистке всех подзадач они удаляются из истории
     void shouldDeleteAllSubtasksFromHistory() {
-        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
-        taskManager.createEpic(new Epic(0,
-                "Закончить 6 спринт", "Выполнить все задания курса",
-                TaskStatus.DONE, new ArrayList<>()));
-        taskManager.createSubtask(new Subtask(0, "Закончить теорию", "Пройти все уроки спринта", TaskStatus.DONE, 1));
-        taskManager.createSubtask(new Subtask(0, "Закончить практику", "Сдать ТЗ 6", TaskStatus.NEW, 1));
+        taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(35), 0));
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.DONE, 1, LocalDateTime.now().plusMinutes(40), 300));
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.NEW, 1, LocalDateTime.now().plusMinutes(350), 300));
         taskManager.getTaskById(0);
         taskManager.getEpicById(1);
         taskManager.getSubtaskById(2);
@@ -169,8 +177,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
         // Проверка, того что в истории хранятся только последние вызовы задач;
     void shouldnotRepeatInHistory() {
-        taskManager.createTask(new Task(1, "Уборка", "Помыть посуду", TaskStatus.NEW));
-        taskManager.createTask(new Task(1, "Учёба", "Выучить стих", TaskStatus.DONE));
+        taskManager.createTask(new Task("Уборка", "Помыть посуду", TaskStatus.NEW, LocalDateTime.now(), 10));
+        taskManager.createTask(new Task("Учёба", "Выучить стих", TaskStatus.DONE, LocalDateTime.now().plusMinutes(30), 30));
         taskManager.getTaskById(1);
         taskManager.getTaskById(0);
         taskManager.getTaskById(0);

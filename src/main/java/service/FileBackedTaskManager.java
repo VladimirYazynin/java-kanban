@@ -47,11 +47,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
                 Task currentTask = fromString(currentLine);
                 validateTask(currentTask);
-                prioritizedTasks.add(currentTask);
+
                 switch (currentTask.getTaskType()) {
-                    case TASK -> tasksMap.put(currentTask.getId(), currentTask);
+                    case TASK -> {
+                        prioritizedTasks.add(currentTask);
+                        tasksMap.put(currentTask.getId(), currentTask);
+                    }
                     case EPIC -> epicsMap.put(currentTask.getId(), (Epic) currentTask);
-                    case SUBTASK -> subtasksMap.put(currentTask.getId(), (Subtask) currentTask);
+                    case SUBTASK -> {
+                        prioritizedTasks.add(currentTask);
+                        subtasksMap.put(currentTask.getId(), (Subtask) currentTask);
+                    }
                 }
 
                 if (currentTask.getId() > maxId)
