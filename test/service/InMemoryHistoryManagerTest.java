@@ -1,13 +1,16 @@
 package service;
 
 import model.Epic;
+import model.Subtask;
 import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 class InMemoryHistoryManagerTest {
 
@@ -41,6 +44,40 @@ class InMemoryHistoryManagerTest {
         historyManager.add(new Task(10, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
         historyManager.add(new Task(11, "Почитать", "Прочитать 10 страниц", TaskStatus.IN_PROGRESS));
         Assertions.assertEquals(11, historyManager.getHistory().size());
+    }
+
+    @Test
+    void shoudDeleteTaskFromDifferentPlacesInHistory() {
+        Epic epic = new Epic(1, "Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(35), 0);
+        Subtask subtask = new Subtask(3, "Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.DONE, 1, LocalDateTime.now().plusMinutes(65), 60);
+        historyManager.add(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
+        historyManager.add(epic);
+        historyManager.add(new Task(2, "Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now().plusMinutes(40), 20));
+        historyManager.add(subtask);
+        historyManager.add(new Task(4, "Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now().plusMinutes(130), 10));
+        Assertions.assertEquals(5, historyManager.getHistory().size());
+        historyManager.remove(2);
+        Assertions.assertEquals(4, historyManager.getHistory().size());
+        historyManager.remove(0);
+        Assertions.assertEquals(3, historyManager.getHistory().size());
+        historyManager.remove(4);
+        Assertions.assertEquals(2, historyManager.getHistory().size());
+        Assertions.assertTrue(historyManager.getHistory().containsAll(List.of(epic, subtask)));
+    }
+
+    @Test
+    void doesnotDuplicate() {
+        historyManager.add(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
+        historyManager.add(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
+        Assertions.assertEquals(1, historyManager.getHistory().size());
+    }
+
+    @Test
+    void doesnotThrowWhenDeleteElementFromEmptyHistory() {
+        Assertions.assertEquals(0, historyManager.getHistory().size());
+        Assertions.assertDoesNotThrow(() -> historyManager.remove(0));
     }
 
 }

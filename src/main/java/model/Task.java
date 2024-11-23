@@ -1,14 +1,18 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Comparable<Task> {
 
     private Integer id;
     private String title;
     private String description;
     private TaskStatus status;
     private TaskType taskType = TaskType.TASK;
+    private LocalDateTime startTime;
+    private Duration duration;
 
     public Integer getId() {
         return id;
@@ -47,12 +51,39 @@ public class Task {
         this.title = title;
         this.description = description;
         this.status = status;
+        this.startTime = LocalDateTime.now();
+        this.duration = Duration.ofMinutes(15);
     }
 
     public Task(String title, String description, TaskStatus status) {
         this.title = title;
         this.description = description;
         this.status = status;
+        this.startTime = LocalDateTime.now();
+        this.duration = Duration.ofMinutes(15);
+    }
+
+    public Task(Integer id, String title, String description, TaskStatus status, LocalDateTime startTime, long duration) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        if (startTime == null)
+            this.startTime = LocalDateTime.now();
+        else
+            this.startTime = startTime;
+        this.duration = Duration.ofMinutes(duration);
+    }
+
+    public Task(String title, String description, TaskStatus status, LocalDateTime startTime, long duration) {
+        this.title = title;
+        this.description = description;
+        this.status = status;
+        if (startTime == null)
+            this.startTime = LocalDateTime.now();
+        else
+            this.startTime = startTime;
+        this.duration = Duration.ofMinutes(duration);
     }
 
     @Override
@@ -70,7 +101,31 @@ public class Task {
 
     @Override
     public String toString() {
-        return String.format("%d,%s,%s,%s,%s", id, getTaskType(), title, status, description);
+        return String.format("%d,%s,%s,%s,%s,%s,%s", id, getTaskType(), title, status, description, startTime, duration, startTime);
     }
 
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime newStartTime) {
+        startTime = newStartTime;
+    }
+
+    public long getDuration() {
+        return duration.toMinutes();
+    }
+
+    public void setDuration(long newDuration) {
+        duration = Duration.ofMinutes(newDuration);
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
+
+    @Override
+    public int compareTo(Task o) {
+        return this.startTime.compareTo(o.getStartTime());
+    }
 }

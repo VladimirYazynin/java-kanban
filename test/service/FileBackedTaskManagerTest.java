@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -43,11 +44,15 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         }
         Assertions.assertEquals(0, startedNumberLines);
 
-        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
-        taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
-        taskManager.createEpic(new Epic(0, "Закончить 6 спринт", "Выполнить все задания курса", TaskStatus.DONE, new ArrayList<>()));
-        taskManager.createSubtask(new Subtask(0, "Закончить теорию", "Пройти все уроки спринта", TaskStatus.DONE, 2));
-        taskManager.createSubtask(new Subtask(0, "Закончить практику", "Сдать ТЗ 6", TaskStatus.NEW, 2));
+        taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
+        taskManager.createTask(new Task( "Отдых", "Посмотреть фильм",
+                TaskStatus.NEW, LocalDateTime.now().plusMinutes(35), 120));
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(160), 0));
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.DONE, 2, LocalDateTime.now().plusMinutes(165), 300));
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.NEW, 2, LocalDateTime.now().plusMinutes(475), 300));
 
         Integer finalNumberLines = 0;
         try {
@@ -66,11 +71,15 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
 
     @Test //Проверка возможности восстановления задач разного типа
     void loadSomeDifferentTasks() {
-        taskManager.createTask(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW));
-        taskManager.createTask(new Task(0, "Отдых", "Посмотреть фильм", TaskStatus.NEW));
-        taskManager.createEpic(new Epic(0, "Закончить 6 спринт", "Выполнить все задания курса", TaskStatus.DONE, new ArrayList<>()));
-        taskManager.createSubtask(new Subtask(0, "Закончить теорию", "Пройти все уроки спринта", TaskStatus.DONE, 2));
-        taskManager.createSubtask(new Subtask(0, "Закончить практику", "Сдать ТЗ 6", TaskStatus.NEW, 2));
+        taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
+        taskManager.createTask(new Task( "Отдых", "Посмотреть фильм",
+                TaskStatus.NEW, LocalDateTime.now().plusMinutes(35), 120));
+        taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
+                TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(160), 0));
+        taskManager.createSubtask(new Subtask("Закончить теорию", "Пройти все уроки спринта",
+                TaskStatus.DONE, 2, LocalDateTime.now().plusMinutes(165), 300));
+        taskManager.createSubtask(new Subtask("Закончить практику", "Сдать ТЗ 6",
+                TaskStatus.NEW, 2, LocalDateTime.now().plusMinutes(475), 300));
 
         FileBackedTaskManager newManager = new FileBackedTaskManager(taskManager.getSavePath());
         newManager.init();
