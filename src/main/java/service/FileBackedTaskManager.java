@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
@@ -45,16 +46,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     break;
 
                 Task currentTask = fromString(currentLine);
+                validateTask(currentTask);
+
                 switch (currentTask.getTaskType()) {
-                    case TASK:
+                    case TASK -> {
+                        prioritizedTasks.add(currentTask);
                         tasksMap.put(currentTask.getId(), currentTask);
-                        break;
-                    case EPIC:
-                        epicsMap.put(currentTask.getId(), (Epic) currentTask);
-                        break;
-                    case SUBTASK:
+                    }
+                    case EPIC -> epicsMap.put(currentTask.getId(), (Epic) currentTask);
+                    case SUBTASK -> {
+                        prioritizedTasks.add(currentTask);
                         subtasksMap.put(currentTask.getId(), (Subtask) currentTask);
-                        break;
+                    }
                 }
 
                 if (currentTask.getId() > maxId)
@@ -74,19 +77,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     protected void save() {
         try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(String.valueOf(savePath.getAbsolutePath())))) {
-
-
-            for (Task task : getAllTasks()) {
-                fileWriter.write(toString(task) + "\n");
-            }
-
-            for (Epic epic : getAllEpics()) {
-                fileWriter.write(toString(epic) + "\n");
-            }
-
-            for (Subtask subtask : getAllSubtasks()) {
-                fileWriter.write(toString(subtask) + "\n");
-            }
+            getAll().stream()
+                    .forEach(task -> {
+                        try {
+                            fileWriter.write(toString(task) + "\n");
+                        } catch (IOException exception) {
+                            throw new ManagerSaveException("Ошибка при сохранении в файл: " + savePath.getName(), exception);
+                        }
+                    });
         } catch (IOException exception) {
             throw new ManagerSaveException("Ошибка при сохранении в файл: " + savePath.getName(), exception);
         }
@@ -95,7 +93,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private String toString(Task task) {
         return task.getId() + "," + task.getTaskType() + "," + task.getTitle() + "," + task.getStatus() + ","
-                + task.getDescription() + "," + task.getEpicId();
+                + task.getDescription() + "," + task.getEpicId() + "," + task.getDuration() + "," + task.getStartTime();
     }
 
     private Task fromString(String value) {
@@ -106,18 +104,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String title = taskInfo[2];
         TaskStatus status = TaskStatus.valueOf(taskInfo[3]);
         String description = taskInfo[4];
+        long duration = Long.parseLong(taskInfo[6]);
+        LocalDateTime startTime = LocalDateTime.parse(taskInfo[7]);
 
         Task task = null;
         switch (taskType) {
-            case TASK:
-                task = new Task(id, title, description, status);
-                break;
-            case EPIC:
-                task = new Epic(id, title, description, status);
-                break;
-            case SUBTASK:
-                task = new Subtask(id, title, description, status, Integer.valueOf(taskInfo[5]));
-                break;
+            case TASK -> task = new Task(id, title, description, status, startTime, duration);
+            case EPIC -> task = new Epic(id, title, description, status, startTime, duration);
+            case SUBTASK ->
+                    task = new Subtask(id, title, description, status, Integer.valueOf(taskInfo[5]), startTime, duration);
         }
 
         return task;

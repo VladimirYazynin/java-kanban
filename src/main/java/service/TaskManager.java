@@ -57,4 +57,6 @@ public interface TaskManager {
     List<Task> getHistory();
 
     File getSavePath();
+
+    List<Task> getPrioritizedTasks();
 }
