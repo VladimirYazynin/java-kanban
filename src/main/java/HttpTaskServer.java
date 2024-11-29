@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
 import controller.*;
-import exception.ErrorHandler;
 import service.Managers;
 import service.TaskManager;
 
@@ -18,7 +17,6 @@ public class HttpTaskServer {
     private final static int PORT = 8080;
     private final TaskManager manager;
     private final HttpServer server;
-    private final ErrorHandler errorHandler;
     private final Gson gson;
 
 
@@ -45,18 +43,17 @@ public class HttpTaskServer {
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .create();
-        errorHandler = new ErrorHandler();
 
         try {
             server = HttpServer.create(new InetSocketAddress(PORT), 0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        server.createContext("/task", new TaskHandler(manager, gson, errorHandler));
-        server.createContext("/epic", new EpicHandler(manager, gson, errorHandler));
-        server.createContext("/subtask", new SubtaskHandler(manager, gson, errorHandler));
-        server.createContext("/history", new HistoryHandler(manager, gson, errorHandler));
-        server.createContext("/prioritized", new PrioritizedHandler(manager, gson, errorHandler));
+        server.createContext("/task", new TaskHandler(manager, gson));
+        server.createContext("/epic", new EpicHandler(manager, gson));
+        server.createContext("/subtask", new SubtaskHandler(manager, gson));
+        server.createContext("/history", new HistoryHandler(manager, gson));
+        server.createContext("/prioritized", new PrioritizedHandler(manager, gson));
     }
 
 }

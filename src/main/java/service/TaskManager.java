@@ -59,4 +59,11 @@ public interface TaskManager {
     File getSavePath();
 
     List<Task> getPrioritizedTasks();
+
+    Task findTaskById(Integer id);
+
+    Epic findEpicById(Integer id);
+
+    Subtask findSubtaskById(Integer id);
+
 }

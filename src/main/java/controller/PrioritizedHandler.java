@@ -3,10 +3,7 @@ package controller;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import exception.ErrorHandler;
 import service.TaskManager;
-
-import java.io.IOException;
 
 public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
     @Override
@@ -16,12 +13,12 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
                 if ("GET".equals(exchange.getRequestMethod()))
                     sendText(exchange, gson.toJson(manager.getPrioritizedTasks()));
             } catch (Exception e) {
-                errorHandler.handle(exchange, e);
+                handle(exchange, e);
             }
         }
     }
 
-    public PrioritizedHandler(TaskManager manager, Gson gson, ErrorHandler errorHandler) {
-        super(manager, gson, errorHandler);
+    public PrioritizedHandler(TaskManager manager, Gson gson) {
+        super(manager, gson);
     }
 }

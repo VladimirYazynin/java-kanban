@@ -348,15 +348,18 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private Task findTaskById(Integer id) {
+    @Override
+    public Task findTaskById(Integer id) {
         return tasks.get(id);
     }
 
-    private Epic findEpicById(Integer id) {
+    @Override
+    public Epic findEpicById(Integer id) {
         return epics.get(id);
     }
 
-    private Subtask findSubtaskById(Integer id) {
+    @Override
+    public Subtask findSubtaskById(Integer id) {
         return subtasks.get(id);
     }
 
