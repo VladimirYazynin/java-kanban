@@ -26,48 +26,48 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
             if (exchange.getRequestURI().toString().endsWith("/epic")) {
                 sendText(exchange, gson.toJson(manager.getAllEpics()));
             } else {
-                Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[3]);
+                Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
                 if (manager.findEpicById(id) == null)
                     throw new NotFoundException("Эпик с " + id + " не найдена");
                 sendText(exchange, gson.toJson(manager.findEpicById(id)));
             }
         } catch (Exception e) {
-            handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handlePostRequest(HttpExchange exchange) {
-        try (exchange; InputStream json = exchange.getRequestBody();) {
+    private void handlePostRequest(HttpExchange exchange) {
+        try (InputStream json = exchange.getRequestBody()) {
             Epic epic = gson.fromJson(new String(json.readAllBytes(), UTF), Epic.class);
             if (epic.getId() == null) {
-                manager.createTask(epic);
-                sendCreated(exchange);
+                manager.createEpic(epic);
+                sendStatus(exchange, 201);
             } else {
-                manager.updateTask(epic);
-                sendOK(exchange);
+                manager.updateEpic(epic);
+                sendStatus(exchange, 200);
             }
         } catch (Exception e) {
-            handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handleDeleteRequest(HttpExchange exchange) {
-        try (exchange; InputStream json = exchange.getRequestBody()) {
+    private void handleDeleteRequest(HttpExchange exchange) {
+        try (InputStream json = exchange.getRequestBody()) {
             Epic epic = gson.fromJson(new String(json.readAllBytes(), UTF), Epic.class);
             if (manager.findEpicById(epic.getId()) == null)
                 throw new NotFoundException("Эпик с " + epic.getId() + " не найдена");
             manager.deleteEpicById(epic.getId());
-            sendOK(exchange);
+            sendStatus(exchange, 200);
         } catch (Exception e) {
-           handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handleUnknownRequest(HttpExchange exchange) {
+    private void handleUnknownRequest(HttpExchange exchange) {
         try (exchange) {
-            sendNotAllowed(exchange);
+            sendStatus(exchange, 405);
         } catch (Exception e) {
-           handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 

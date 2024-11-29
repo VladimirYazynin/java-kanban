@@ -7,7 +7,6 @@ import exception.NotFoundException;
 import exception.ValidationException;
 import service.TaskManager;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -17,75 +16,62 @@ public class BaseHttpHandler {
     protected final Gson gson;
     protected final TaskManager manager;
 
-    public void sendText(HttpExchange exchange, String text) {
+    protected void sendText(HttpExchange exchange, String text) {
         try (exchange) {
             byte[] resp = text.getBytes(UTF);
             exchange.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
             exchange.sendResponseHeaders(200, resp.length);
             exchange.getResponseBody().write(resp);
         } catch (Exception e) {
-            handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void sendCreated(HttpExchange exchange) {
+    protected void sendStatus(HttpExchange exchange, int rCode) {
         try (exchange) {
-            exchange.sendResponseHeaders(201, 0);
+            exchange.sendResponseHeaders(rCode, 0);
         } catch (Exception e) {
-           handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void sendOK(HttpExchange exchange) {
+    protected void sendTextAndStatus(HttpExchange exchange, int rCode, String text) {
         try (exchange) {
-            exchange.sendResponseHeaders(200, 0);
-        } catch (Exception e) {
-            handle(exchange, e);
-        }
-    }
-
-    public void sendNotAllowed(HttpExchange exchange) {
-        try (exchange) {
-            exchange.sendResponseHeaders(405, 0);
-        } catch (Exception e) {
-           handle(exchange, e);
-        }
-    }
-
-    public void handle(HttpExchange exchange, Exception e) {
-        try {
-            if (e instanceof ManagerSaveException) {
-                //
-                return;
-            }
-
-            if (e instanceof NotFoundException) {
-                //
-                return;
-            }
-
-            if (e instanceof ValidationException) {
-                e.printStackTrace();
-                //
-            }
-
+            byte[] resp = text.getBytes(UTF);
+            exchange.getResponseHeaders().add("Content-Type", "application/json;charset=utf-8");
+            exchange.sendResponseHeaders(rCode, resp.length);
+            exchange.getResponseBody().write(resp);
         } catch (Exception ignore) {
             ignore.printStackTrace();
         }
     }
 
-    public void sendNotFound(HttpExchange exchange, NotFoundException e) throws IOException {
+    public void handleException(HttpExchange exchange, Exception e) {
+        try {
+            if (e instanceof ManagerSaveException) {
+                e.printStackTrace();
+                sendTextAndStatus(exchange, 500, gson.toJson(e.getMessage()));
+                return;
+            }
 
+            if (e instanceof NotFoundException) {
+                e.printStackTrace();
+                sendTextAndStatus(exchange, 404, gson.toJson(e.getMessage()));
+                return;
+            }
+
+            if (e instanceof ValidationException) {
+                e.printStackTrace();
+                sendTextAndStatus(exchange, 406, "Ошибка");
+                return;
+            }
+
+            e.printStackTrace();
+            sendTextAndStatus(exchange, 500, gson.toJson(e.getMessage()));
+        } catch (Exception ignore) {
+            ignore.printStackTrace();
+        }
     }
-
-    public void sendHasInteractions() {
-
-    }
-
-    public void sendServerError() {
-
-    }
-
 
     public BaseHttpHandler(TaskManager manager, Gson gson) {
         this.manager = manager;

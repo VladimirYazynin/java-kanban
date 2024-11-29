@@ -26,48 +26,48 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
             if (exchange.getRequestURI().toString().endsWith("/task")) {
                 sendText(exchange, gson.toJson(manager.getAllTasks()));
             } else {
-                Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[3]);
+                Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
                 if (manager.findTaskById(id) == null)
                     throw new NotFoundException("Задача с " + id + " не найдена");
                 sendText(exchange, gson.toJson(manager.findEpicById(id)));
             }
         } catch (Exception e) {
-            handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handlePostRequest(HttpExchange exchange) {
-        try (exchange; InputStream json = exchange.getRequestBody();) {
+    private void handlePostRequest(HttpExchange exchange) {
+        try (InputStream json = exchange.getRequestBody()) {
             Task task = gson.fromJson(new String(json.readAllBytes(), UTF), Task.class);
             if (task.getId() == null) {
                 manager.createTask(task);
-                sendCreated(exchange);
+                sendStatus(exchange, 201);
             } else {
                 manager.updateTask(task);
-                sendOK(exchange);
+                sendStatus(exchange, 200);
             }
         } catch (Exception e) {
-            handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handleDeleteRequest(HttpExchange exchange) {
-        try (exchange; InputStream json = exchange.getRequestBody();) {
+    private void handleDeleteRequest(HttpExchange exchange) {
+        try (InputStream json = exchange.getRequestBody()) {
             Task task = gson.fromJson(new String(json.readAllBytes(), UTF), Task.class);
             if (manager.findTaskById(task.getId()) == null)
                 throw new NotFoundException("Задача с " + task.getId() + " не найдена");
             manager.deleteTaskById(task.getId());
-            sendOK(exchange);
+            sendStatus(exchange, 200);
         } catch (Exception e) {
-            handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handleUnknownRequest(HttpExchange exchange) {
+    private void handleUnknownRequest(HttpExchange exchange) {
         try (exchange) {
-            sendNotAllowed(exchange);
+            sendStatus(exchange, 405);
         } catch (Exception e) {
-            handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 

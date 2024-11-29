@@ -14,7 +14,7 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
                 if ("GET".equals(exchange.getRequestMethod()))
                     sendText(exchange, gson.toJson(manager.getHistory()));
             } catch (Exception e) {
-               handle(exchange, e);
+               handleException(exchange, e);
             }
         }
     }

@@ -26,48 +26,48 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
             if (exchange.getRequestURI().toString().endsWith("/subtask")) {
                 sendText(exchange, gson.toJson(manager.getAllSubtasks()));
             } else {
-                Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[3]);
+                Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
                 if (manager.findSubtaskById(id) == null)
                     throw new NotFoundException("Подзадача с " + id + " не найдена");
                 sendText(exchange, gson.toJson(manager.findSubtaskById(id)));
             }
         } catch (Exception e) {
-            handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handlePostRequest(HttpExchange exchange) {
-        try (exchange; InputStream json = exchange.getRequestBody();) {
+    private void handlePostRequest(HttpExchange exchange) {
+        try (InputStream json = exchange.getRequestBody()) {
             Subtask subtask = gson.fromJson(new String(json.readAllBytes(), UTF), Subtask.class);
             if (subtask.getId() == null) {
                 manager.createSubtask(subtask);
-                sendCreated(exchange);
+                sendStatus(exchange, 201);
             } else {
-                manager.updateTask(subtask);
-                sendOK(exchange);
+                manager.updateSubtask(subtask);
+                sendStatus(exchange, 200);
             }
         } catch (Exception e) {
-           handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handleDeleteRequest(HttpExchange exchange) {
-        try (exchange; InputStream json = exchange.getRequestBody();) {
+    private void handleDeleteRequest(HttpExchange exchange) {
+        try (InputStream json = exchange.getRequestBody()) {
             Subtask subtask = gson.fromJson(new String(json.readAllBytes(), UTF), Subtask.class);
             if (manager.findSubtaskById(subtask.getId()) == null)
                 throw new NotFoundException("Подзадача с " + subtask.getId() + " не найдена");
             manager.deleteSubtaskById(subtask.getId());
-            sendOK(exchange);
+            sendStatus(exchange, 200);
         } catch (Exception e) {
-           handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 
-    public void handleUnknownRequest(HttpExchange exchange) {
+    private void handleUnknownRequest(HttpExchange exchange) {
         try (exchange) {
-            sendNotAllowed(exchange);
+            sendStatus(exchange, 405);
         } catch (Exception e) {
-           handle(exchange, e);
+            handleException(exchange, e);
         }
     }
 

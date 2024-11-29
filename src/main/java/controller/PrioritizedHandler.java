@@ -13,7 +13,7 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
                 if ("GET".equals(exchange.getRequestMethod()))
                     sendText(exchange, gson.toJson(manager.getPrioritizedTasks()));
             } catch (Exception e) {
-                handle(exchange, e);
+                handleException(exchange, e);
             }
         }
     }
