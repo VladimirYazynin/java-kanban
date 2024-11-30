@@ -22,7 +22,7 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     private void handleGetRequest(HttpExchange exchange) {
-        try (exchange) {
+        try {
             if (exchange.getRequestURI().toString().endsWith("/subtasks")) {
                 sendText(exchange, gson.toJson(manager.getAllSubtasks()));
             } else {

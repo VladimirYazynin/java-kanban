@@ -22,7 +22,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     private void handleGetRequest(HttpExchange exchange) {
-        try (exchange) {
+        try {
             if (exchange.getRequestURI().toString().endsWith("/epics")) {
                 sendText(exchange, gson.toJson(manager.getAllEpics()));
             } else {

@@ -22,7 +22,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     private void handleGetRequest(HttpExchange exchange) {
-        try (exchange) {
+        try {
             if (exchange.getRequestURI().toString().endsWith("/tasks")) {
                 sendText(exchange, gson.toJson(manager.getAllTasks()));
             } else {
