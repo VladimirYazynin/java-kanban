@@ -17,7 +17,7 @@ import java.util.Scanner;
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test //Проверка возможности сохранения и загрузки пустого файла
-    void testSaveAndLoadEmptyFile() {
+    void saveAndInit_SaveAndLoadEmptyFile_SizeShouldNotChange() {
         Assertions.assertEquals(0, taskManager.getSavePath().length());
         int allTasksBeforeSaving = taskManager.getAll().size();
         taskManager.save();
@@ -29,7 +29,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     }
 
     @Test //Проверка возможности сохранения задач разных типов
-    void saveSomeDifferentTasks() {
+    void saveTaskToFile_DifferentTaskType_ShouldSaveAllTasks() {
         Integer startedNumberLines = 0;
 
         try {
@@ -70,7 +70,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     }
 
     @Test //Проверка возможности восстановления задач разного типа
-    void loadSomeDifferentTasks() {
+    void init_loadDifferentTasksFromFile_AllTaskMustCreate() {
         taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
         taskManager.createTask(new Task( "Отдых", "Посмотреть фильм",
                 TaskStatus.NEW, LocalDateTime.now().plusMinutes(35), 120));

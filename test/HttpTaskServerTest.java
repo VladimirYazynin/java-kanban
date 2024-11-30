@@ -37,7 +37,7 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void testGetTaskById() throws IOException, InterruptedException {
+    void handleGetRequest_GETbyId_ReturnTaskAndStatus200() throws IOException, InterruptedException {
         Task task1 = new Task(0, "Учёба", "Пройти новую тему", TaskStatus.NEW, LocalDateTime.now(), 5);
         Task task2 = new Task(1, "Уборка", "Помыть пол", TaskStatus.IN_PROGRESS, LocalDateTime.now().plusMinutes(10), 30);
         String task2Json = gson.toJson(task2);
@@ -60,7 +60,7 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void testGetAllTask() throws IOException, InterruptedException {
+    void handleGetRequest_GET_ReturnTasksAndStatus200() throws IOException, InterruptedException {
         Task task1 = new Task("Учёба", "Пройти новую тему", TaskStatus.NEW, LocalDateTime.now(), 5);
         Task task2 = new Task("Уборка", "Помыть пол", TaskStatus.IN_PROGRESS, LocalDateTime.now().plusMinutes(10), 30);
         taskServer.getManager().createTask(task1);
@@ -81,7 +81,7 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void testCreateTask() throws IOException, InterruptedException {
+    void handlePostRequest_POST_ShouldCreateTaskAndReturnStatus201() throws IOException, InterruptedException {
         assertEquals(0, taskServer.getManager().getAllTasks().size());
         Task task1 = new Task("Учёба", "Пройти новую тему", TaskStatus.NEW, LocalDateTime.now(), 5);
         String taskJson = gson.toJson(task1);
@@ -100,7 +100,7 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void testUpdateTask() throws IOException, InterruptedException {
+    void handlePostRequest_POSTbyId_ShouldUpdateTaskAndReturnStatus200() throws IOException, InterruptedException {
         Task task1 = new Task("Учёба", "Пройти новую тему", TaskStatus.NEW, LocalDateTime.now(), 5);
         taskServer.getManager().createTask(task1);
         assertEquals(1, taskServer.getManager().getAllTasks().size());
@@ -122,7 +122,7 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void testDeleteTask() throws IOException, InterruptedException {
+    void handleDeleteRequest_DELETEbyId_ShouldDeleteTaskAndReturnStatus200() throws IOException, InterruptedException {
         Task task1 = new Task("Учёба", "Пройти новую тему", TaskStatus.NEW, LocalDateTime.now(), 5);
         taskServer.getManager().createTask(task1);
 
@@ -140,7 +140,7 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void shouldReturnStatus404() throws IOException, InterruptedException {
+    void handleGetRequest_GETbyWrongId_ReturnStatus404() throws IOException, InterruptedException {
         Task task1 = new Task(0, "Учёба", "Пройти новую тему", TaskStatus.NEW, LocalDateTime.now(), 5);
         taskServer.getManager().createTask(task1);
 
@@ -156,7 +156,7 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void shouldReturnStatus406() throws IOException, InterruptedException {
+    void handlePostRequest_POSTwithWrongTask_ReturnStatus406() throws IOException, InterruptedException {
         Task task1 = new Task("Учёба", "Пройти новую тему", TaskStatus.NEW, LocalDateTime.now(), 30);
         Task task2 = new Task("Уборка", "Помыть пол", TaskStatus.IN_PROGRESS, LocalDateTime.now(), 10);
         String task1Json = gson.toJson(task1);
@@ -184,7 +184,7 @@ public class HttpTaskServerTest {
     }
 
     @Test
-    void shouldReturnStatus500() throws IOException, InterruptedException {
+    void handleUnknownRequest_GETwrongURI_ReturnStatus500() throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/tasks/get");
         HttpRequest request = HttpRequest.newBuilder()

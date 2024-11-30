@@ -11,7 +11,7 @@ class ManagersTest {
 
     @Test
         // Проверка того, что всегда возвращается рабочий экземпляр менеджера задач
-    void getFileBackedTaskManager() {
+    void getFileBackedTaskManager_WhenCreated_ReturnWorkingManager() {
         TaskManager taskManager = Managers.getFileBackedTaskManager("taskInfoTest.csv");
         taskManager.createEpic(new Epic(
                 1, "Отдохнуть", "Провести свободное время по максимуму",
@@ -22,7 +22,7 @@ class ManagersTest {
 
     @Test
         // Проверка того, что всегда возвращается рабочий экземпляр менеджера задач
-    void getDefault() {
+    void getDefault_WhenCreated_ReturnWorkingManager() {
         TaskManager taskManager = Managers.getDefault();
         taskManager.createEpic(new Epic(
                 1, "Отдохнуть", "Провести свободное время по максимуму",
@@ -33,7 +33,7 @@ class ManagersTest {
 
     @Test
         // Проверка того, что всегда возвращается рабочий экземпляр менеджера истории просмотров
-    void getDefaultHistory() {
+    void getDefaultHistory_WhenCreated_ReturnWorkingHistoryManager() {
         HistoryManager historyManager = Managers.getDefaultHistory();
         historyManager.add(new Epic(
                 1, "Отдохнуть", "Провести свободное время по максимуму",

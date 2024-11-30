@@ -32,7 +32,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // проверьте, что экземпляры класса model.Task равны друг другу, если равен их id;
-    void shouldTaskObjectEqualsIfIdSame() {
+    void whenDifferentTaskWithSameId_ShouldBeEqual() {
         Task task = new Task(1, "Уборка", "Помыть посуду", TaskStatus.NEW, LocalDateTime.now(), 10);
         Task newTask = new Task(1, "Учёба", "Выучить стих", TaskStatus.DONE, LocalDateTime.now().plusMinutes(30), 30);
         Assertions.assertEquals(task, newTask);
@@ -40,7 +40,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // проверьте, что наследники класса model.Task равны друг другу, если равен их id;
-    void taskHeirsShouldBeEqualsIfIdSame() {
+    void whenTaskSubclassesHaveSameId_ShouldBeEqual() {
         Epic epic = new Epic(0, "Переезд", "Выполнить много дел",
                 TaskStatus.NEW, new ArrayList<>());
         Epic newEpic = new Epic(0, "Покупки", "Купить хлеб и кофе",
@@ -55,7 +55,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // проверьте, что объект model.Epic нельзя добавить в самого себя в виде подзадачи;
-    void epicCantBeAsEpicSubtask() {
+    void createEpic_EpicWithWrongSubtaskId_ShouldNotCreate() {
         taskManager.createEpic(new Epic(0, "Переезд", "Выполнить много дел",
                         TaskStatus.NEW, new ArrayList<>() {{
                     add(0);
@@ -66,7 +66,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // проверьте, что объект model.Subtask нельзя сделать своим же эпиком;
-    void subtaskCantBeAsSubtaskEpic() {
+    void createSubtask_SubtaskWithOwnIdAsEpic_ShouldNotCreate() {
         taskManager.createSubtask(new Subtask(0, "Сбор вещей",
                 "Уложить всё в коробки", TaskStatus.IN_PROGRESS, 0));
         Assertions.assertEquals(0, taskManager.getAllSubtasks().size());
@@ -90,7 +90,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // Проверка того, что задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера;
-    void generatedIdGoodWorksWithHandleId() {
+    void create_TasksWithGeneratedIdAndHandledId_ShouldNotConflict() {
         Task taskWithoutId = new Task("Уборка", "Убрать снег во дворе", TaskStatus.NEW, LocalDateTime.now(), 120);
         Task taskWithId = new Task(1000, "Мегауборка", "Помыть посуду", TaskStatus.DONE, LocalDateTime.now().plusMinutes(125), 10);
         taskManager.createTask(taskWithoutId);
@@ -103,7 +103,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // Проверка неизменности задачи, после добавления её в менеджер;
-    void checkImmutableTaskAfterSendingInMeneger() {
+    void taskShouldRemainImmutableAfterAddingToManager() {
         Task task = new Task(0, "Уборка", "Помыть посуду", TaskStatus.NEW);
         taskManager.createTask(task);
         Assertions.assertEquals(task, taskManager.getTaskById(0));
@@ -111,7 +111,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // Проверка, того, что service.HistoryManager сохраняет в себе актуальную версию задачи, а также добавляет её в конец списка;
-    void shouldSavedOldTaskVersionInHistory() {
+    void shouldSaveCurrentTaskVersionInHistory() {
         LocalDateTime firstTaskStartTime = LocalDateTime.now();
         taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, firstTaskStartTime, 30));
         taskManager.createTask(new Task("Отдых", "Посмотреть фильм", TaskStatus.NEW, LocalDateTime.now().plusMinutes(60), 150));
@@ -126,7 +126,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         //Проверка, того, что при удалении всех задач они также удаляются из истории
-    void shouldDeletedAllTasksFromHistory() {
+    void getHistory_DeleteAllTasks_ShouldDeletedAllTasksFromHistory() {
         taskManager.createTask(new Task("Уборка", "Помыть посуду", TaskStatus.NEW, LocalDateTime.now(), 10));
         taskManager.createTask(new Task("Учёба", "Выучить стих", TaskStatus.DONE, LocalDateTime.now().plusMinutes(30), 30));
         taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
@@ -140,7 +140,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // Проверка, того, что при удалении эпиков из истории они удаляются со своими подзадачами
-    void shouldDeletedAllEpicsAndTheirSubtasksFromHistory() {
+    void getHistory_DeleteAllEpics_ShouldDeletedAllEpicsAndTheirSubtasksFromHistory() {
         taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
         taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
                 TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(35), 0));
@@ -158,7 +158,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // Проверка, того, что при очистке всех подзадач они удаляются из истории
-    void shouldDeleteAllSubtasksFromHistory() {
+    void getHistory_DeleteAllSubtasks_ShouldDeleteAllSubtasksFromHistory() {
         taskManager.createTask(new Task("Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
         taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
                 TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(35), 0));
@@ -176,7 +176,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
         // Проверка, того что в истории хранятся только последние вызовы задач;
-    void shouldnotRepeatInHistory() {
+    void getHistory_GetTaskFromHistoryFewTimes_ShouldNotRepeatInHistory() {
         taskManager.createTask(new Task("Уборка", "Помыть посуду", TaskStatus.NEW, LocalDateTime.now(), 10));
         taskManager.createTask(new Task("Учёба", "Выучить стих", TaskStatus.DONE, LocalDateTime.now().plusMinutes(30), 30));
         taskManager.getTaskById(1);
@@ -187,7 +187,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicDurationShouldBeSumOfHisSubtasks() {
+    void calculateEpicState_CreateSomeSubtasks_EpicDurationShouldBeSumOfHisSubtasks() {
         taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
                 TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now(), 0));
         Assertions.assertEquals(0, taskManager.getEpicById(0).getDuration());
@@ -200,7 +200,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldBeNEW() {
+    void calculateEpicState_AllSubtasksStatusNEW_EpicShouldNEW() {
         taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
                 TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now(), 0));
         Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
@@ -213,7 +213,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldBeDONE() {
+    void calculateEpicStat_AllSubtasksStatusDONE_EpicShouldDONE() {
         taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
                 TaskStatus.IN_PROGRESS, new ArrayList<>(), LocalDateTime.now(), 0));
         Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
@@ -226,7 +226,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldBeIN_PROGRESS() {
+    void calculateEpicState_SubtasksWithDifferentStatus_EpicShouldINPROGRESS() {
         taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
                 TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now(), 0));
         Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
@@ -239,7 +239,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void epicStatusShouldBeIN_PROGRESSifAllSubtasksIN_PROGRESS() {
+    void calculateEpicState_AllSubtasksINPROGRESS_EpicShouldINPROGRESS() {
         taskManager.createEpic(new Epic("Закончить 6 спринт", "Выполнить все задания курса",
                 TaskStatus.IN_PROGRESS, new ArrayList<>(), LocalDateTime.now(), 0));
         Assertions.assertEquals(TaskStatus.NEW, taskManager.getEpicById(0).getStatus());
@@ -252,7 +252,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldnotProblemWithTimeIntervals() {
+    void createTask_CreateTaskWithDifferentTimeInterval_ShouldNotProblem() {
         Assertions.assertDoesNotThrow(() ->
         {
             taskManager.createTask(new Task("Уборка", "Протереть пыль",
@@ -265,7 +265,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldBeValidationException() {
+    void createTask_CreateTaskWithIntersectTime_ThrowValidationException() {
         Assertions.assertThrows(ValidationException.class,
                 () -> {
                     taskManager.createTask(new Task("Уборка", "Протереть пыль",
