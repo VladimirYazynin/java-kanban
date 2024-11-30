@@ -62,7 +62,7 @@ public class BaseHttpHandler {
 
             if (e instanceof ValidationException) {
                 e.printStackTrace();
-                sendTextAndStatus(exchange, 406, "Ошибка");
+                sendTextAndStatus(exchange, 406, gson.toJson(e.getMessage()));
                 return;
             }
 

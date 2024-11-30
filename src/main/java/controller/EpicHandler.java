@@ -23,7 +23,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
 
     private void handleGetRequest(HttpExchange exchange) {
         try (exchange) {
-            if (exchange.getRequestURI().toString().endsWith("/epic")) {
+            if (exchange.getRequestURI().toString().endsWith("/epics")) {
                 sendText(exchange, gson.toJson(manager.getAllEpics()));
             } else {
                 Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
@@ -52,11 +52,11 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     private void handleDeleteRequest(HttpExchange exchange) {
-        try (InputStream json = exchange.getRequestBody()) {
-            Epic epic = gson.fromJson(new String(json.readAllBytes(), UTF), Epic.class);
-            if (manager.findEpicById(epic.getId()) == null)
-                throw new NotFoundException("Эпик с " + epic.getId() + " не найдена");
-            manager.deleteEpicById(epic.getId());
+        try {
+            Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
+            if (manager.findEpicById(id) == null)
+                throw new NotFoundException("Эпик с " + id + " не найдена");
+            manager.deleteEpicById(id);
             sendStatus(exchange, 200);
         } catch (Exception e) {
             handleException(exchange, e);

@@ -23,13 +23,13 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
 
     private void handleGetRequest(HttpExchange exchange) {
         try (exchange) {
-            if (exchange.getRequestURI().toString().endsWith("/task")) {
+            if (exchange.getRequestURI().toString().endsWith("/tasks")) {
                 sendText(exchange, gson.toJson(manager.getAllTasks()));
             } else {
                 Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
                 if (manager.findTaskById(id) == null)
                     throw new NotFoundException("Задача с " + id + " не найдена");
-                sendText(exchange, gson.toJson(manager.findEpicById(id)));
+                sendText(exchange, gson.toJson(manager.findTaskById(id)));
             }
         } catch (Exception e) {
             handleException(exchange, e);
@@ -52,11 +52,11 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     private void handleDeleteRequest(HttpExchange exchange) {
-        try (InputStream json = exchange.getRequestBody()) {
-            Task task = gson.fromJson(new String(json.readAllBytes(), UTF), Task.class);
-            if (manager.findTaskById(task.getId()) == null)
-                throw new NotFoundException("Задача с " + task.getId() + " не найдена");
-            manager.deleteTaskById(task.getId());
+        try {
+            Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
+            if (manager.findTaskById(id) == null)
+                throw new NotFoundException("Задача с " + id + " не найдена");
+            manager.deleteTaskById(id);
             sendStatus(exchange, 200);
         } catch (Exception e) {
             handleException(exchange, e);

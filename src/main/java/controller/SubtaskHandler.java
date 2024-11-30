@@ -23,7 +23,7 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
 
     private void handleGetRequest(HttpExchange exchange) {
         try (exchange) {
-            if (exchange.getRequestURI().toString().endsWith("/subtask")) {
+            if (exchange.getRequestURI().toString().endsWith("/subtasks")) {
                 sendText(exchange, gson.toJson(manager.getAllSubtasks()));
             } else {
                 Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
@@ -52,11 +52,11 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
     }
 
     private void handleDeleteRequest(HttpExchange exchange) {
-        try (InputStream json = exchange.getRequestBody()) {
-            Subtask subtask = gson.fromJson(new String(json.readAllBytes(), UTF), Subtask.class);
-            if (manager.findSubtaskById(subtask.getId()) == null)
-                throw new NotFoundException("Подзадача с " + subtask.getId() + " не найдена");
-            manager.deleteSubtaskById(subtask.getId());
+        try {
+            Integer id = Integer.parseInt(exchange.getRequestURI().toString().split("/")[2]);
+            if (manager.findSubtaskById(id) == null)
+                throw new NotFoundException("Подзадача с " + id + " не найдена");
+            manager.deleteSubtaskById(id);
             sendStatus(exchange, 200);
         } catch (Exception e) {
             handleException(exchange, e);
