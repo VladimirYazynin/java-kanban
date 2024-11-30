@@ -1,10 +1,14 @@
 package model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.time.LocalDateTime;
 
 public class Subtask extends Task {
 
     private final Integer idEpictask;
+
+    @SerializedName("subtaskType")
     private final TaskType taskType = TaskType.SUBTASK;
 
     public Integer getIdEpictask() {

@@ -24,14 +24,14 @@ class InMemoryHistoryManagerTest {
 
     @Test
         // Проверка работоспособности добавления задачи в список просмотренных
-    void addFirstTaskInHistory() {
+    void add_AddFirstTaskInHistory_ShouldHistorySizeEqual1() {
         historyManager.add(new Task(10, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
         Assertions.assertEquals(1, historyManager.getHistory().size());
     }
 
     @Test
         // Проверка того, что ограничения на уникальные задачи больше нет и при добавлении 11 задачи, она будет добавлена
-    void shouldSavedMoreThenTenTasks() {
+    void add_SavedMoreThenTenTasks_ShouldHistorySizeEqual11() {
         historyManager.add(new Task(1, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW));
         historyManager.add(new Task(2, "Сделать уборку", "Помыть пол", TaskStatus.DONE));
         historyManager.add(new Epic(3, "Зайти в магазин", "Купить молоко и хлеб", TaskStatus.NEW, new ArrayList<Integer>()));
@@ -47,7 +47,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void shoudDeleteTaskFromDifferentPlacesInHistory() {
+    void remove_DeleteTaskFromDifferentPlacesInHistory_ShouldNotRemoveEpicAndSubtask() {
         Epic epic = new Epic(1, "Закончить 6 спринт", "Выполнить все задания курса",
                 TaskStatus.DONE, new ArrayList<>(), LocalDateTime.now().plusMinutes(35), 0);
         Subtask subtask = new Subtask(3, "Закончить теорию", "Пройти все уроки спринта",
@@ -68,14 +68,14 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void doesnotDuplicate() {
+    void add_AddSameTask_ShouldNotDuplicate() {
         historyManager.add(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
         historyManager.add(new Task(0, "Уборка", "Протереть пыль", TaskStatus.NEW, LocalDateTime.now(), 30));
         Assertions.assertEquals(1, historyManager.getHistory().size());
     }
 
     @Test
-    void doesnotThrowWhenDeleteElementFromEmptyHistory() {
+    void remove_DeleteTaskFromEmptyHistory_ShouldNotThrowException() {
         Assertions.assertEquals(0, historyManager.getHistory().size());
         Assertions.assertDoesNotThrow(() -> historyManager.remove(0));
     }
